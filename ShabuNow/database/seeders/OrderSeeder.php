@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Menu;
 use App\Models\Order;
 use App\Models\Table;
 use App\Models\User;
@@ -15,15 +16,17 @@ class OrderSeeder extends Seeder
      */
     public function run(): void
     {
-        $order = Order::factory()->count(20)->create();
-        foreach (Order::all() as $order) {
-            $table = Table::find($order->table_id);
-            $table->status = 'used';
-            $table->save();
-
-            $user = User::find(fake()->unique()->numberBetween(1,20));
-            $user->table_id = $table->id;
-            $user->save();
+        Order::factory()->count(40)->create();
+        $orders = Order::all();
+        $menus = Menu::all();
+        foreach ($orders as $order) {
+            for ($i = 0; $i < 5; $i++) {
+                $menu = $menus->find(fake()->numberBetween(1, 20));
+                if (!$order->menus()->find($menu->id)) {
+                    $order->menus()->attach($menu->id);
+                }
+                $order->menus()->updateExistingPivot($menu->id, ['quantity' => fake()->numberBetween(1,10)]);
+            }
         }
     }
 }

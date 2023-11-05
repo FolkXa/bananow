@@ -13,19 +13,16 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('username')->nullable();
+            $table->string('username')->unique();
             $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('phone')->unique();
+            $table->string('contacts')->nullable();
             $table->rememberToken();
-            $table->timestamps();
             $table->enum('role', ['admin','chef','staff','customer'])->nullable();
-            $table->integer('tableNumber')->nullable();
             $table->string('imgPath')->nullable();
             $table->string('firstname');
             $table->string('surname');
-            $table->integer('age');
-            $table->foreignIdFor(\App\Models\Table::class)->nullable();
         });
     }
 

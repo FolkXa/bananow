@@ -13,11 +13,10 @@ return new class extends Migration
     {
         Schema::create('menus', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
             $table->string('name');
             $table->foreignIdFor(\App\Models\Category::class); //category_id(fk)
             $table->string('imgPath')->nullable();
-            $table->string('description');
+            $table->string('description')->nullable();
             $table->enum('status',['available','outofstock']);
             $table->integer('price');
         });

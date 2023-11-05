@@ -55,6 +55,7 @@ export const useAuthStore = defineStore("auth", {
         tokenStore.removeToken();
         console.log(res);
       } catch (error) {
+        tokenStore.removeToken();
         throw error;
       }
     },
@@ -77,7 +78,7 @@ export const useAuthStore = defineStore("auth", {
         return navigateTo("/admins");
       }
       if (data.user.role == "customer") {
-        return navigateTo("/");
+        return navigateTo("/home");
       }
     },
   },

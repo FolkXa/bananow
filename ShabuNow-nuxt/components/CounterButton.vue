@@ -13,7 +13,7 @@
             type="number" 
             class="outline-none focus:outline-none text-center w-full font-semibold text-md hover:text-black focus:text-black  md:text-basecursor-default flex items-center text-gray-700  outline-none" 
             name="custom-input-number"
-            v-model="counter.number"
+            v-model="counter"
             @input="checkMinValue">
             <button @click="up()" data-action="increment" class="text-gray-600 hover:text-gray-700 hover:bg-gray-100 h-full w-20 rounded-r cursor-pointer">
                 <span class="m-auto text-2xl font-thin">+</span>
@@ -22,18 +22,16 @@
     </div>
 </template>
 
-<script>
-export default {
-  props: ['title', 'initialNumber']
-}
-</script>
-
 <script setup>
+defineProps(['title'])
+const updateCounterValue = defineEmits(['updateCounterValue']);
+//const passValue = document.getElementsByName('pass')[0].childNodes[0];
 const counter = reactive({number: 1})
-
 // increase จำนวนเมื่อกดปุ่ม +
 function up() {
-  counter.number++
+  if (counter.number < 10) {
+    counter.number++
+  }
 }
 
 // decrease จำนวนเมื่อกดปุ่ม -
@@ -49,7 +47,15 @@ function checkMinValue() {
     counter.number = 1
   }
 }
+watch(
+    () => counter,
+    (value) => {
+      updateCounterValue(value); // Emit the event with the updated value
+    }
+);
 </script>
+
+
 
 <style scoped lang="scss">
   input[type='number']::-webkit-inner-spin-button,

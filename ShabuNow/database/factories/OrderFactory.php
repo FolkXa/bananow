@@ -17,11 +17,12 @@ class OrderFactory extends Factory
      */
     public function definition(): array
     {
-        $status = array('pending','ordered','ready','served');
+        $status = array('ordering','pending','in queue','ready','done');
         return [
             'detail' => fake()->realTextBetween(120,200,2),
             'status' => $status[array_rand($status)],
-            'table_id' => fake()->numberBetween(1,20),
+            'user_id' => fake()->numberBetween(1,20),
+            'receiving_time' => fake()->dateTime()
         ];
     }
 }

@@ -11,9 +11,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Order extends Model
 {
     use HasFactory;
+    public $timestamps = false;
 
     public function menus() : BelongsToMany
     {
-        return $this->belongsToMany(Menu::class, 'order_menus', 'order_id', 'menu_id')->withPivot('quantity');
+        return $this->belongsToMany(Menu::class, 'order_details', 'order_id', 'menu_id')->withPivot('quantity');
+    }
+    public function user() : BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 }

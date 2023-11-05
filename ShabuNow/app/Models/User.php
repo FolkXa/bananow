@@ -27,7 +27,6 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
-        'age',
     ];
 
     /**
@@ -46,12 +45,13 @@ class User extends Authenticatable
      * @var array<string, string>
      */
     protected $casts = [
-        'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
 
-    public function tables() : BelongsTo
+    public $timestamps = false;
+
+    public function orders() : HasMany
     {
-        return $this->belongsTo(Table::class);
+        return $this->hasMany(Order::class);
     }
 }

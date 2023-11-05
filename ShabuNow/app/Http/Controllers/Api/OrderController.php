@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Menu;
 use App\Models\Order;
 use App\Models\Table;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -13,23 +14,17 @@ class OrderController extends Controller
 {
     public function orderWithPrice()
     {
-        $orderWithPrice = DB::table('menus')
-            ->join('orders', 'orders.menu_id', '=', 'menus.id')
-            ->get();
-        return $orderWithPrice;
+
     }
 
     public function show(Order $order)
     {
-        $orderWithPrice = $this->orderWithPrice();
-        $orders = $orderWithPrice->where('orders.id', '=' , $order->id);
-        return $orders;
+
     }
-    public function index(Table $table)
+    public function index(string $user_id, string $status)
     {
-        $orders = $this->orderWithPrice();
-        $orders = $orders->where('table_id', '=' , $table->id);
-        return $orders;
+        return Order::with('menus')->where('user_id', $user_id)
+            ->where('status', 'ordering')->get()->last();
     }
 
     public function checkPending(Table $table)
@@ -78,32 +73,69 @@ class OrderController extends Controller
         return $order;
     }
 
-    public function addMenu(Request $request, string $table_id) { // can use as edit menu quantity
+    public function allStore(Request $request, string $user_id) {
+        $request->validate([
+            'menuSender' => 'required',
+            'order_id' => 'required'
+        ]);
+        $user = User::find($user_id);
+        if ($user === null) {
+            return abort(400, 'invalid user id');
+        }
+        $menus = $request->get('menuSender');
+        $order_id = $request->get('order_id');
+        $order = Order::find($order_id);
+        if (!$order) {
+            $order = new Order();
+            $order->user_id = $user_id;
+            $order->save();
+            $order->refresh();
+        }
+        $order_id = $order->id;
+        $menu_id = 0;
+        foreach ($menus as $menuQuantity) {
+            if ($menu_id === 0) {
+                $menu_id++;
+                continue;
+            }
+            $quantity = 0;
+            if ($menuQuantity) {
+                $quantity = $menuQuantity;
+            }
+            if (!$order->menus()->find($menu_id) && $quantity !== 0) {
+                $order->menus()->attach($menu_id);
+            }
+            if ($quantity) {
+                $order->menus()->updateExistingPivot($menu_id, ['quantity' => $quantity]);
+            } else {
+                $order->menus()->detach(Menu::find($menu_id));
+            }
+            $menu_id++;
+        }
+        return response()->json('store successfully');
+    }
+
+    public function addMenu(Request $request, string $user_id) { // can use as edit menu quantity
         $request->validate([
             'menu_id' => ['required'],
             'quantity' => ['required','integer','min:1','max:10'],
         ]);
-
-        $table = Table::find($table_id);
-        if ($table === null) {
-            return abort(400, 'invalid table id');
+        $user = User::find($user_id);
+        if ($user === null) {
+            return abort(400, 'invalid user id');
         }
-
         $menu = Menu::find($request->get('menu_id'));
         if ($menu === null) {
             return abort(400, 'invalid menu id');
         }
-        $order = null;
+        $order = User::find(1)->orders()->where('status', 'pending')->get()->get(0);
         $quantity = $request->get('quantity');
-        if ($table->status === 'available') {
+        if (!$order) {
             $order = new Order();
-            $order->status = 'pending';
-            $order->table_id = $table->id;
+            $order->user_id = $user_id;
             $order->save();
-        } else {
-            $order = Order::where('table_id', $table->id)->get()->last();
+            $order->refresh();
         }
-
         if (!$order->menus()->find($menu->id)) {
             $order->menus()->attach($menu->id);
         } else {
@@ -113,8 +145,14 @@ class OrderController extends Controller
         return response()->json('add menu Successfully');
     }
 
-    public function getOrderByTableId(string $table_id) {
-        return Order::with('menus')->where('table_id', $table_id)->get()->last();
+    public function updateOrderStatus(string $order_id) {
+        $order = Order::find($order_id);
+        $order->status = 'pending';
+        $order->save();
+    }
+
+    public function getQueue() {
+        return Order::where('status', 'in Queue')->get();
     }
 
 }

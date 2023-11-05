@@ -5,8 +5,7 @@
       <!-- form -->
       <div class="sm:w-1/2 px-8">
         <h1 class="font-bold text-2xl">Register</h1>
-        <p class="mt-4 text-sm">Let's create your account.</p>
-        <form @submit.prevent="handleSubmit" action="" class="flex flex-col gap-4 mt-4">
+        <form @submit.prevent="handleSubmit" action="" class="flex flex-col gap-4 mt-0">
           <InputField
             class="p-2 rounded-xl mt-4"
             type="text"
@@ -67,12 +66,21 @@
           <span v-if="errors.password_confirmation" class="text-red-500">{{
             errors.password_confirmation[0]
           }}</span>
+          <InputField
+              class="p-2 rounded-xl"
+              type="phone"
+              name="phone"
+              placeholder="Phone Number"
+              v-model="form.phone"
+          />
+          <span v-if="errors.phone" class="text-red-500">{{
+              errors.phone[0]
+            }}</span>
           <div class="mx-auto mt-2">
             <label
               for="example1"
               class="mb-1 block text-sm font-medium text-gray-700"
-              >อัพโหลดรูปภาพ</label
-            >
+              >อัพโหลดรูปภาพ</label>
             <input
               id="example1"
               type="file"

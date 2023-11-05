@@ -49,6 +49,8 @@ Route::group([
     'middleware' => 'api',
     'prefix' => 'order'
 ], function () {
-    Route::get('/{table_id}/getOrder', [\App\Http\Controllers\Api\OrderController::class, 'getOrderByTableId']);
-    Route::post('/{table_id}/addMenu', [\App\Http\Controllers\Api\OrderController::class, 'addMenu']);
+    Route::get('/{user_id}/{status}', [\App\Http\Controllers\Api\OrderController::class, 'index']);
+    Route::get('/getQueue', [\App\Http\Controllers\Api\OrderController::class, 'getQueue']);
+    Route::post('/{user_id}/addMenu', [\App\Http\Controllers\Api\OrderController::class, 'addMenu']);
+    Route::post('/{user_id}/allStore', [\App\Http\Controllers\Api\OrderController::class, 'allStore']);
 });

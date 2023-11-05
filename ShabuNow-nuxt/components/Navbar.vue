@@ -104,7 +104,7 @@ export default {
         const auth = useAuthStore()
         const open = ref(false);
         const links = [
-            {name : "เลือกเมนู" , link : "/"},
+            {name : "เลือกเมนู" , link : "/home"},
             {name : "ตะกร้าสินค้า" , link : "/carts"},
             {name : "รายการที่สั่ง" , link : "/bills"},
             {name : "คำสั่งซื้อลูกค้า" , link : "/orders"},

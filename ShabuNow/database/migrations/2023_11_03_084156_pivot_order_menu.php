@@ -11,12 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('order_menus', function (Blueprint $table) {
+        Schema::create('order_details', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(\App\Models\Order::class);
             $table->foreignIdFor(\App\Models\Menu::class);
             $table->integer('quantity')->default(0);
-            $table->timestamps();
         });
     }
 
