@@ -37,7 +37,7 @@
     >
       <ul class="lg:flex justify-around items-center w-auto mr-2">
         <li class="lg:m-0 m-4" v-for="link in links">
-          <a
+          <a v-if="auth.getUser.role === link.role"
             :href="link.link"
             class="hover:border hover:border-red-600 hover:border-2 hover:text-red-600 cursor-pointer rounded-xl px-1 py-1.5 mx-2">
             {{ link.name }}
@@ -104,10 +104,9 @@ export default {
         const auth = useAuthStore()
         const open = ref(false);
         const links = [
-            {name : "เลือกเมนู" , link : "/home"},
-            {name : "ตะกร้าสินค้า" , link : "/carts"},
-            {name : "รายการที่สั่ง" , link : "/bills"},
-            {name : "คำสั่งซื้อลูกค้า" , link : "/orders"},
+            {name : "เลือกเมนู" , link : "/home", role: 'customer'},
+            {name : "ตะกร้าสินค้า" , link : "/carts", role: ''},
+            {name : "รายการที่สั่ง" , link : "/history", role: 'customer'},
         ];
 
     function menuOpen() {

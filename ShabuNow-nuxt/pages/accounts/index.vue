@@ -17,16 +17,28 @@
         </p>
         <p class="mt-4">
           <span class="font-medium"> ชื่อลูกค้า : </span>
-          {{ auth.getUser.firstname }} {{ auth.getUser.surname }}
+          {{ auth.getUser.firstname }} {{ auth.getUser.lastname }}
         </p>
         <p class="mt-4">
-          <span class="font-medium"> วันที่สมัครสมาชิก : </span>
-          {{ auth.getUser.created_at }}
+          <span class="font-medium"> เบอร์โทรศัพท์ : </span>
+          {{ auth.getUser.phone }}
         </p>
+        <div v-if="auth.getUser.role === 'customer'">
         <p class="mt-4">
-          <span class="font-medium"> แต้มสะสม : </span>
-          0
+          <span class="font-medium"> ช่องทางติดต่อ อื่นๆ : </span>
         </p>
+        <InputField v-model="formContacts" @input="checkContacts"
+                    class="mt-4" placeholder="ช่องทางการติดต่อ อื่นๆ" type="text" name="contacts"/>
+        <Button @click="updateContacts" class="mt-4 p-3 text-lg">ยืนยันการเปลี่ยนช่องทางการติดต่อ</Button>
+        <span v-if="message.contacts" class="text-red-500">{{
+            message.contacts
+          }}</span>
+        <div class="mt-2">
+                <span v-if="message.contacts_success" class="text-green-500">{{
+                    message.contacts_success
+                  }}</span>
+        </div>
+        </div>
       </div>
 
       <!-- เปลี่ยนรหัสผ่าน -->
@@ -84,15 +96,45 @@
 <script setup lang="ts">
 const route = useRoute()
 const auth = useAuthStore()
+const token = useTokenStore();
 const formData = reactive({
   old_password: "",
   new_password: "",
   new_password_confirmation: "",
 })
 
+const data = await $fetch(`http://localhost/api/getContacts/${auth.getUser.id}`)
+const formContacts = ref(data);
+console.log(token)
+
+function checkContacts() {
+  if (formContacts.value.length > 30) {
+    formContacts.value = formContacts.value.substring(0, 30)
+  }
+}
+
+async function updateContacts() {
+  let contacts = formContacts.value
+  try {
+    const response = await $fetch(`http://localhost/api/updateContacts/${auth.getUser.id}`, {
+      method: 'POST',
+      body: { contacts }
+    })
+    message.contacts = ''
+    message.contacts_success = 'เปลี่ยนช่องทางการติดต่อสำเร็จ'
+  } catch (error) {
+    message.contacts = 'เปลี่ยนช่องทางการติดต่อไม่สำเร็จ'
+    message.contacts_success = ''
+  }
+
+}
+
+
 const message = reactive({
   success: "",
-  error: ""
+  error: "",
+  contacts: "",
+  contacts_success: ""
 })
 
 async function handleChangePassword() {
@@ -100,7 +142,7 @@ async function handleChangePassword() {
   console.log(formData)
   try {
     if (formData.old_password !== "") {
-      const customer = await $fetch<any>(`http://localhost/api/customer/${auth.getUser.id}/updatePassword`, {
+      const customer = await $fetch(`http://localhost/api/customer/${auth.getUser.id}/updatePassword`, {
         method: "POST",
         body: formData,
       })

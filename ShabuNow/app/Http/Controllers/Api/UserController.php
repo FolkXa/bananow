@@ -32,8 +32,8 @@ class UserController extends Controller
             'password' => ['min:5','required_with:confirm_password','same:confirm_password'],
             'confirm_password' => ['min:5'],
             'email' => ['required','email'],
-            'image' => 'image|mimes:jpeg,png,jpg,gif|max:2048'
-
+            'image' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            'phone' => ['required', 'min:10', 'max:15']
         ]);
 
         $user = new User();
@@ -110,7 +110,6 @@ class UserController extends Controller
             'confirm_password' => ['min:5'],
             'email' => ['required','email'],
             'image' => 'image|mimes:jpeg,png,jpg,gif|max:2048'
-
         ]);
 
         $user->firstname = $request->get('firstname');
@@ -182,6 +181,23 @@ class UserController extends Controller
         $user->refresh();
 
         return $user;
+    }
+
+    // change password
+    public function updatePassword(Request $request, User $user) {
+        $request->validate([
+            'old_password' => ['required','min:5'],
+            'new_password' => ['required','min:5','confirmed']
+        ]);
+        if (!Hash::check($request->get('old_password'), $user->password)) {
+            return response()->json(["error" => "รหัสผ่านเดิมไม่ถูกต้อง!"]);
+        }
+
+        $user->password = Hash::make($request->get('new_password'));
+        $user->save();
+        $user->refresh();
+
+        return response()->json(["status" => "เปลี่ยนรหัสผ่านสำเร็จ!"]);
     }
 
     /**

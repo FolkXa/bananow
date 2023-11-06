@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\Table;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
@@ -21,56 +22,24 @@ class OrderController extends Controller
     {
 
     }
-    public function index(string $user_id, string $status)
+    public function ordersByNonStatus(string $status) {
+        return Order::with('menus', 'user')->where('status', '!=', $status)
+            ->orderBy('status')->orderBy('id', 'ASC')->get();
+    }
+    public function ordersByStatus(string $status) {
+        return Order::with('menus', 'user')->where('status', $status)
+            ->orderBy('status')->orderBy('id', 'ASC')->get();
+    }
+    public function orderByStatus(string $user_id, string $status)
     {
         return Order::with('menus')->where('user_id', $user_id)
-            ->where('status', 'ordering')->get()->last();
+            ->where('status', $status)->get()->last();
     }
 
-    public function checkPending(Table $table)
-    {
-        $orders = $this->orderWithPrice();
-        $orders = $orders->where('table_id', '=' , $table->id);
-        $orders = $orders->where('status', '=' , 'pending');
-        return $orders;
-    }
-
-    public function sendOrders(Table $table)
-    {
-        $orders = Order::where('table_id', '=' , $table->id)->get();
-        $orders = $orders->where('table_id', '=' , $table->id);
-        $orders = $orders->where('status', '=' , 'pending');
-        foreach ($orders as $order)
-        {
-            $order->status = 'ordered';
-            $order->save();
-        }
-
-        $orders = $this->orderWithPrice();
-        $orders = $orders->where('table_id', '=' , $table->id);
-        return $orders;
-    }
-
-    public function store(Request $request, Table $table)
-    {
-        $request->validate([
-                'menu_id' => ['required'],
-                'quantity' => ['required','integer','min:1','max:100'],
-            ]);
-
-        $order = new Order();
-
-        $order->menu_id = $request->get('menu_id');
-        $order->quantity = $request->get('quantity');
-        $menu = Menu::find($request->get('menu_id'));
-        $order->name = $menu->name;
-        $order->table_id = $table->id;
-        $order->status = 'pending';
-
-        $order->save();
-        $order->refresh();
-
-        return $order;
+    public function orderByNonStatus(string $user_id, string $status) {
+        return Order::with('menus')->where('user_id', $user_id)
+            ->where('status', '!=', $status)
+            ->orderBy('status')->orderBy('id', 'DESC')->get();
     }
 
     public function allStore(Request $request, string $user_id) {
@@ -145,10 +114,25 @@ class OrderController extends Controller
         return response()->json('add menu Successfully');
     }
 
-    public function updateOrderStatus(string $order_id) {
+    public function updateOrderStatus(Request $request, string $order_id) {
+        $request->validate([
+            'receiving_time' => 'required'
+        ]);
         $order = Order::find($order_id);
         $order->status = 'pending';
+        $order->receiving_time = $request->get('receiving_time');
+        $order->order_date = date("Y-m-d H:i:s");
         $order->save();
+        $order->refresh();
+        return $order;
+    }
+
+    public function updateStatus(string $order_id ,string $status) {
+        $order = Order::find($order_id);
+        $order->status = $status;
+        $order->save();
+        $order->refresh();
+        return $order;
     }
 
     public function getQueue() {

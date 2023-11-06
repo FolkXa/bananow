@@ -15,8 +15,10 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(\App\Models\User::class)->nullable();
             $table->string('detail')->nullable();
-            $table->enum('status', ['ordering','pending','in queue','ready','done'])->default('ordering');
+            $table->enum('status', ['ordering','pending','in_queue','ready','done','rejected'])->default('ordering');
             $table->timestamp('receiving_time')->nullable();
+            $table->timestamp('order_date')->nullable();
+            $table->string('note')->nullable();
         });
     }
 

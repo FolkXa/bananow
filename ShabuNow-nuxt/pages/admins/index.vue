@@ -15,7 +15,7 @@
       </template> -->
 
       <!-- category dropdown button -->
-      <ButtonDropdown title="หมวดหมู่อาหาร" :items="categories" class="mb-4" />
+<!--      <ButtonDropdown title="หมวดหมู่อาหาร" :items="categories" class="mb-4" />-->
       <!-- end -->
     </HeaderContainer>
     <hr />
@@ -33,16 +33,16 @@
       <!-- menu management -->
       <div class="flex justify-center items-center border-b py-6 w-full">
         <div class="flex flex-col w-full max-w-xl">
-          <a href="/admins/addCategory">
+          <a href="/admins/editMenu">
             <ButtonBorder class="w-full">
               <i class="bi bi-bookmark-plus-fill mr-2"></i>
-              เพิ่มหมวดหมูอาหาร
+              จัดการเมนู
             </ButtonBorder>
           </a>
           <a href="/admins/createMenu" class="mt-4">
           <ButtonBorder class="w-full">
             <i class="fa-solid fa-bowl-food mr-2"></i>
-            เพิ่มเมนูอาหาร
+            เพิ่มเมนู
             </ButtonBorder>
           </a>
         </div>

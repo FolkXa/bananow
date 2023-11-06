@@ -38,8 +38,27 @@ class AuthController extends Controller
                 'username' => $user->username,
                 'email' => $user->email,
                 'role' => $user->role,
+                'firstname' => $user->firstname,
+                'lastname' => $user->lastname,
+                'phone' => $user->phone,
+                'imgPath' => $user->imgPath
             ]
             ]);
+    }
+
+    public function getContacts(string $user_id) {
+        return User::find($user_id)->contacts;
+    }
+
+    public function updateContacts(Request $request, string $user_id) {
+        $request->validate([
+            'contacts' => 'required'
+        ]);
+        $user = User::find($user_id);
+        $user->contacts = $request->get('contacts');
+        $user->save();
+        return response()->json(['message' => 'update success']);
+
     }
     public function logout(Request $request) {
         $request->user()->tokens()->delete();

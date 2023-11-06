@@ -14,8 +14,6 @@
       <!-- category dropdown button -->
 <!--      <ButtonDropdownScroll title="หมวดหมู่อาหาร" :items="categories" class="mb-4" />-->
       <!-- end -->
-      <ButtonBorder v-if="auth.getUser.role === 'admin'">+ เพิ่มเมนู</ButtonBorder>
-      <ButtonBorder v-if="auth.getUser.role === 'admin'" href="/admins/createMenu">+ เพิ่มหมวดหมู่</ButtonBorder>
       <button @click="sendOrder" class="border-2 border-black hover:border-red-600 ease-in-out duration-300 hover:text-red-600 rounded py-1.5 px-4 font-semibold"
               v-if="auth.getUser.role === 'customer'" :href="'/carts/' + table_id">
         <slot><i class="bi bi-cart-plus mr-2"></i>ราคารวม : {{ price }}</slot>
@@ -114,10 +112,15 @@
 const counter = ref([]);
 const table_id = 3;
 const auth = useAuthStore();
+if (auth.getUser.role === 'admin') {
+  navigateTo('/admins/editMenu')
+} else if (auth.getUser.role === 'staff') {
+  navigateTo('/staff/order')
+}
 let data = null;
 console.log(auth.getUser.role)
 async function getPrice() {
-  data = await $fetch(`http://localhost/api/order/${auth.getUser.id}/ordering`);
+  data = await $fetch(`http://localhost/api/order/${auth.getUser.id}/status/ordering`);
   if (data) {
     let totalPrice = 0;
     data.menus?.forEach(menu => {
@@ -154,7 +157,7 @@ function checkMinValue(id) {
   }
 }
 
-const menus = await $fetch("http://localhost/api/menu", {
+const menus = await $fetch("http://localhost/api/menu/available", {
       method: "GET",
       headers: {
         Accept: "application/json",
@@ -166,18 +169,21 @@ function addPrice(menu_id) {
 function downPrice(menu_id) {
   price.value -= menus[menu_id-1].price;
 }
-menus.forEach(item => {
-  counter.value[item.id] = 0;
-});
+
+for (const menu of menus) {
+  counter.value[menu.id] = 0;
+}
 
 const price = ref(0);
 price.value = await getPrice();
 console.log(auth.getUser)
-menus[1].pivot = {
-  quantity: 0
+if (menus) {
+  menus[1].pivot = {
+    quantity: 0
+  }
 }
 async function sendOrder() {
-  data = await $fetch(`http://localhost/api/order/${auth.getUser.id}/ordering`);
+  data = await $fetch(`http://localhost/api/order/${auth.getUser.id}/status/ordering`);
   const order_id = data.id? data.id : 0;
   const menuSender = [];
   menus.forEach(item => {

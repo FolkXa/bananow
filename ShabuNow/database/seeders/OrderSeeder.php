@@ -25,7 +25,7 @@ class OrderSeeder extends Seeder
                 if (!$order->menus()->find($menu->id)) {
                     $order->menus()->attach($menu->id);
                 }
-                $order->menus()->updateExistingPivot($menu->id, ['quantity' => fake()->numberBetween(1,10)]);
+                $order->menus()->updateExistingPivot($menu->id, ['quantity' => fake()->numberBetween(1,5)]);
             }
         }
     }

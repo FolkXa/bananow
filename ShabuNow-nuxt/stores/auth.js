@@ -80,6 +80,9 @@ export const useAuthStore = defineStore("auth", {
       if (data.user.role == "customer") {
         return navigateTo("/home");
       }
+      if (data.user.role == "staff") {
+        return navigateTo("/home");
+      }
     },
   },
 });

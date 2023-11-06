@@ -66,16 +66,6 @@
           <span v-if="errors.password_confirmation" class="text-red-500">{{
             errors.password_confirmation[0]
           }}</span>
-          <InputField
-              class="p-2 rounded-xl"
-              type="phone"
-              name="phone"
-              placeholder="Phone Number"
-              v-model="form.phone"
-          />
-          <span v-if="errors.phone" class="text-red-500">{{
-              errors.phone[0]
-            }}</span>
           <div class="mx-auto mt-2">
             <label
               for="example1"
@@ -130,12 +120,14 @@ const form = reactive({
 const errors = ref([]);
 const handleSubmit = async () => {
   try {
-    await auth.register(form);
+    const response = await auth.register(form);
     // const { data } = await $fetch("http://localhost/api/login", {
     //   method: "POST",
     //   body: { ...form },
     // });
+    console.log('res : ',response)
   } catch (error) {
+    console.log(error.data.errors)
     // console.log(error.data.errors.email[0]);
     errors.value = error.data.errors;
   }

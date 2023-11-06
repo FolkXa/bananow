@@ -16,7 +16,9 @@
             <tbody>
                 <tr v-for="(row, rowIndex) in datas" :key="rowIndex">
                     <td v-for="(data, colIndex) in row" :key="colIndex" class="border border-slate-300 rounded-xl p-2">
+                      <a>
                         {{ data }}
+                      </a>
                     </td>
                 </tr>
             </tbody>
@@ -26,6 +28,6 @@
 
 <script>
 export default {
-    props: ['datas','headers']
+    props: ['datas','headers', 'links']
 }
 </script>

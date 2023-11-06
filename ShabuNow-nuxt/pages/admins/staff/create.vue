@@ -19,37 +19,67 @@ import { Input } from 'postcss';
           <div class="bg-cover-overlay"></div>
         </div>
 
-        <form action="">
+        <form @submit.prevent="errorCheck">
+          <InputField
+              class="mt-4"
+              type="text"
+              name="username"
+              placeholder="Username"
+              v-model="username"
+          />
+          <span v-if="errors.username" class="text-red-500">{{
+              errors.username
+            }}</span>
           <InputField
             class="mt-4"
             type="text"
             name="firstname"
             placeholder="Firstname"
+            v-model="firstname"
           />
+          <span v-if="errors.firstname" class="text-red-500">{{
+              errors.firstname
+            }}</span>
           <InputField
             class="mt-4"
             type="text"
             name="lastname"
             placeholder="Lastname"
+            v-model="lastname"
           />
+          <span v-if="errors.lastname" class="text-red-500">{{
+              errors.lastname
+            }}</span>
           <InputField
             class="mt-4"
             type="email"
             name="email"
             placeholder="Email"
+            v-model="email"
           />
+          <span v-if="errors.email" class="text-red-500">{{
+              errors.email
+            }}</span>
           <InputField
             class="mt-4"
             type="password"
             name="password"
             placeholder="Password"
+            v-model="password"
           />
+          <span v-if="errors.password" class="text-red-500">{{
+              errors.password
+            }}</span>
           <InputField
             class="mt-4"
             type="password"
             name="confirm-password"
             placeholder="Confirm password"
+            v-model="confirm_password"
           />
+          <span v-if="errors.confirm_password" class="text-red-500">{{
+              errors.confirm_password
+            }}</span>
           <div class="mx-auto my-8">
             <label
               for="example1"
@@ -73,10 +103,84 @@ import { Input } from 'postcss';
   </MainContainer>
 </template>
 
+<script setup lang="js">
+const username = ref('');
+const firstname = ref('');
+const lastname = ref('');
+const email = ref('');
+const password = ref('');
+const confirm_password = ref('')
+const imgPath = ref(null)
+
+const errors = reactive({
+  username : null,
+  firstname : null,
+  lastname : null,
+  email : null,
+  password : null,
+  confirm_password : null
+})
+function errorCheck() {
+  if (username.value === '') {
+    errors.username = "username field is required"
+  }else if (username.value.length < 8) {
+    errors.username = "must more than 8 characters"
+  } else {
+    errors.username = null
+  }
+
+
+  if (firstname.value === '') {
+    errors.firstname = "firstname field is required";
+  } else if (firstname.value.length < 8) {
+    errors.firstname = "must be more than 8 characters";
+  } else {
+    errors.firstname = null;
+  }
+
+  if (lastname.value === '') {
+    errors.lastname = "lastname field is required";
+  } else if (lastname.value.length < 8) {
+    errors.lastname = "must be more than 8 characters";
+  } else {
+    errors.lastname = null;
+  }
+
+  if (email.value === '') {
+    errors.email = "email field is required";
+  } else if (email.value.length < 8) {
+    errors.email = "must be more than 8 characters";
+  } else {
+    errors.email = null;
+  }
+
+  if (password.value === '') {
+    errors.password = "password field is required";
+  } else if (password.value.length < 8) {
+    errors.password = "must be more than 8 characters";
+  } else {
+    errors.password = null;
+  }
+
+  if (confirm_password.value === '') {
+    errors.confirm_password = "confirm password field is required";
+  } else if (confirm_password.value !== password.value) {
+    errors.confirm_password = "password is not equals confirm password";
+  } else {
+    errors.confirm_password = null;
+  }
+  addStaff()
+}
+
+function addStaff() {
+
+}
+</script>
+
 <style>
 .bg-cover-category {
   position: relative;
-  background-image: url('../../assets/img/cover1.jpg');
+  background-image: url('../../../assets/img/cover1.jpg');
   background-position: center;
 }
 .bg-cover-overlay {

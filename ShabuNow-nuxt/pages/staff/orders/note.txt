@@ -1,0 +1,5 @@
+let orders = await $fetch(`http://localhost/api/order/status/${status[route.params.id].title}`);
+status.push({
+  title: 'all',
+  link: '/staff/order'
+});

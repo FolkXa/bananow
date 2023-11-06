@@ -17,6 +17,10 @@ class MenuController extends Controller
         return Menu::get();
     }
 
+    public function availableMenu() {
+        return Menu::where('status', 'available')->get();
+    }
+
     /**
      * Display the specified resource.
      */
@@ -35,7 +39,28 @@ class MenuController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|min:1|max:20',
+            'imgPath' => 'nullable|string',
+            'description' => 'nullable|string|min:1|max:30',
+            'status' => 'required|in:available,outofstock',
+            'price' => 'required|integer|min:1|max:1000',
+        ]);
+
+        $menu = Menu::find($id);
+        if (!$menu) {
+            return abort(400, 'invalid menu id');
+        }
+
+        $menu->name = $request->get('name');
+        $menu->imgPath = $request->get('imgPath');
+        $menu->description = $request->get('description');
+        $menu->status = $request->get('status');
+        $menu->price = $request->get('price');
+        $menu->save();
+        $menu->refresh();
+
+        return $menu;
     }
 
     /**
@@ -52,34 +77,24 @@ class MenuController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => ['required', 'string', 'min:1'],
-            'price' => ['required', 'integer', 'min:1'],
-            'category' => ['required', 'string'],
-            'description' => ['required', 'string', 'min:1'],
-            'image' => 'image|mimes:jpeg,png,jpg,gif|max:2048'
+            'name' => 'required|string|min:1|max:20',
+            'imgPath' => 'nullable|string',
+            'description' => 'nullable|string|min:1|max:30',
+            'status' => 'required|in:available,outofstock',
+            'price' => 'required|integer|min:1|max:1000',
         ]);
 
-
-        // Store image in 'public/images' folder
-
-
-        // Search what category has the same name as selected
-        $category = Category::where('name', $request->get('category'))->first();
-
+        $name = $request->get('name');
+        if (Menu::where('name', $name)) {
+            return abort(400, 'repeated name');
+        }
         $menu = new Menu();
 
-        $menu->name = $request->get('name');
-        $menu->price = $request->get('price');
-        $menu->category_id = $category->id;
+        $menu->name = $name;
+        $menu->imgPath = $request->get('imgPath');
         $menu->description = $request->get('description');
-        $menu->status = 'available';
-
-        if($request->file('image') != null )
-        {
-            $imagePath = $request->file('image')->store('foodImages', 'public');
-            $menu->imgPath = $imagePath;
-        }
-
+        $menu->status = $request->get('status');
+        $menu->price = $request->get('price');
         $menu->save();
         $menu->refresh();
 

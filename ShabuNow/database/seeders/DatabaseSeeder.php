@@ -13,7 +13,6 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call(UserSeeder::class);
-        $this->call(CategorySeeder::class);
         $this->call(MenuSeeder::class);
         $this->call(OrderSeeder::class);
         // \App\Models\User::factory(10)->create();
@@ -29,6 +28,13 @@ class DatabaseSeeder extends Seeder
             'email' => 'admin@example.com',
             'password' => Hash::make('password'),
             'role' => 'admin'
+        ]);
+
+        \App\Models\User::factory()->create([
+            'username' => 'Test staff',
+            'email' => 'staff@example.com',
+            'password' => Hash::make('password'),
+            'role' => 'staff'
         ]);
     }
 }

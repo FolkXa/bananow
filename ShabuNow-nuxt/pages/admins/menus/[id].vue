@@ -1,7 +1,7 @@
 <template>
   <MainContainer>
     <HeaderContainer>
-      <HeaderText>เพิ่มเมนู</HeaderText>
+      <HeaderText>แก้ไขเมนู</HeaderText>
     </HeaderContainer>
     <hr />
     <form @submit.prevent="onSubmit()" >
@@ -10,7 +10,7 @@
 
           <div class="overflow-hidden border h-[150px] flex flex-col lg:flex-row justify-around items-center rounded-xl bg-cover-category object-cover bg-center bg-no-repeat">
             <h1 class="text-xl lg:text-3xl font-semibold text-white z-10">
-              เพิ่มเมนู
+              แก้ไขเมนู
             </h1>
             <div class="z-10 text-white text-6xl lg:text-8xl">
               <i class="fa-solid fa-bowl-food"></i>
@@ -38,7 +38,7 @@
               @input="checkPrice"
           />
           <select v-model="menu.status"
-                  class="mt-4 text-base focus:ring-red-600 focus:border-red-600 focus:ring-1 focus:outline-none p-2.5 block bg-white border border-slate-300 rounded-md w-full py-3 pl-9 pr-3"
+              class="mt-4 text-base focus:ring-red-600 focus:border-red-600 focus:ring-1 focus:outline-none p-2.5 block bg-white border border-slate-300 rounded-md w-full py-3 pl-9 pr-3"
           >
             <option v-for="option in options" :value="option">
               {{ option }}
@@ -75,18 +75,21 @@
     </form>
   </MainContainer>
 </template>
+
 <script setup lang="js">
+import {useRoute} from "vue-router";
+import {useAuthStore} from "~/stores/auth";
+import {formToJSON} from "axios";
+
+// function onFileChanged(event) {
+//   console.log(event)
+// }
 
 const auth = useAuthStore();
+const route = useRoute();
 
-const menu = reactive({
-  name : '',
-  price : 10,
-  description : '',
-  status : 'available',
-  imgPath : ''
-
-});
+const response = await $fetch(`http://localhost/api/menu/${route.params.id}`)
+const menu = reactive(response);
 const options = ['available', 'outofstock']
 
 function checkName() {
@@ -128,18 +131,18 @@ async function onSubmit() {
   const description = menu.description;
   const status = menu.status;
   if (errors.name === null && errors.description === null) {
-    const response = await $fetch(`http://localhost/api/menu/store`, {
+    const response = await $fetch(`http://localhost/api/menu/update/${route.params.id}`, {
       method : 'POST',
       body : { name, price, imgPath, description, status }
-    });
-    console.log(response);
+    })
+    navigateTo('/admins/editMenu')
   }
 }
 </script>
 <style>
 .bg-cover-category {
   position: relative;
-  background-image: url('../../assets/img/cover1.jpg');
+  background-image: url('../../../assets/img/cover1.jpg');
   background-position: center;
 }
 .bg-cover-overlay {

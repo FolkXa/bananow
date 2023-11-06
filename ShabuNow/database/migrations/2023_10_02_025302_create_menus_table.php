@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('menus', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->foreignIdFor(\App\Models\Category::class); //category_id(fk)
             $table->string('imgPath')->nullable();
             $table->string('description')->nullable();
             $table->enum('status',['available','outofstock']);
