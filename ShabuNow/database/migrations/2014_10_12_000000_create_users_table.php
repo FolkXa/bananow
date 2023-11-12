@@ -19,10 +19,10 @@ return new class extends Migration
             $table->string('phone')->unique()->nullable();
             $table->string('contacts')->nullable();
             $table->rememberToken();
-            $table->enum('role', ['admin','chef','staff','customer'])->nullable();
+            $table->enum('role', ['admin','chef','staff','customer'])->default('customer');
             $table->string('imgPath')->nullable();
             $table->string('firstname');
-            $table->string('surname');
+            $table->string('lastname');
         });
     }
 

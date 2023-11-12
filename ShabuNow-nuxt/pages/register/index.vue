@@ -6,8 +6,9 @@
       <div class="sm:w-1/2 px-8">
         <h1 class="font-bold text-2xl">Register</h1>
         <form @submit.prevent="handleSubmit" action="" class="flex flex-col gap-4 mt-0">
+          <p class="mt-2">Username*</p>
           <InputField
-            class="p-2 rounded-xl mt-4"
+            class="p-2 rounded-xl mt-0"
             type="text"
             name="username"
             placeholder="Username"
@@ -16,6 +17,7 @@
           <span v-if="errors.username" class="text-red-500">{{
             errors.username[0]
           }}</span>
+          <p class="mt-2">First Name*</p>
           <InputField
             class="p-2 rounded-xl"
             type="text"
@@ -26,16 +28,18 @@
           <span v-if="errors.firstname" class="text-red-500">{{
             errors.firstname[0]
           }}</span>
+          <p class="mt-2">Last Name*</p>
           <InputField
             class="p-2 rounded-xl"
             type="text"
-            name="surname"
-            placeholder="Surname"
-            v-model="form.surname"
+            name="lastname"
+            placeholder="Last Name"
+            v-model="form.lastname"
           />
-          <span v-if="errors.surname" class="text-red-500">{{
+          <span v-if="errors.lastname" class="text-red-500">{{
             errors.surname[0]
           }}</span>
+          <p class="mt-2">Email*</p>
           <InputField
             class="p-2 rounded-xl"
             type="email"
@@ -46,6 +50,7 @@
           <span v-if="errors.email" class="text-red-500">{{
             errors.email[0]
           }}</span>
+          <p class="mt-2">Password*</p>
           <InputField
             class="p-2 rounded-xl"
             type="password"
@@ -56,16 +61,28 @@
           <span v-if="errors.password" class="text-red-500">{{
             errors.password[0]
           }}</span>
+          <p class="mt-2">Confirm Password*</p>
           <InputField
             class="p-2 rounded-xl"
             type="password"
             name="confirmPassword"
-            placeholder="Confirm password"
+            placeholder="Confirm Password"
             v-model="form.password_confirmation"
           />
           <span v-if="errors.password_confirmation" class="text-red-500">{{
             errors.password_confirmation[0]
           }}</span>
+          <InputField
+              class="p-2 rounded-xl"
+              type="text"
+              name="phone"
+              placeholder="Phone Number"
+              v-model="form.phone"
+              @input="formatPhoneNumber"
+          />
+          <span v-if="errors.phone" class="text-red-500">{{
+              errors.phone[0]
+            }}</span>
           <div class="mx-auto mt-2">
             <label
               for="example1"
@@ -115,17 +132,31 @@ const form = reactive({
   email: "",
   password: "",
   password_confirmation: "",
+  phone : "",
   photos: "",
+  role : "customer"
 });
+
 const errors = ref([]);
+
+function formatPhoneNumber() {
+  // Remove any non-numeric characters from the input
+  form.phone = form.phone.replace(/\D/g, '');
+
+  // Format the phone number as desired (e.g., add dashes)
+  if (form.phone.length === 10) {
+    form.phone = form.phone.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+  }
+}
 const handleSubmit = async () => {
   try {
+    // const response = await auth.register(username, firstname, surname, email, password, password_confirmation, photos);
     const response = await auth.register(form);
-    // const { data } = await $fetch("http://localhost/api/login", {
     //   method: "POST",
     //   body: { ...form },
     // });
     console.log('res : ',response)
+    await auth.login();
   } catch (error) {
     console.log(error.data.errors)
     // console.log(error.data.errors.email[0]);

@@ -28,6 +28,7 @@
   "dependencies": {
     "@pinia/nuxt": "^0.5.1",
     "axios": "^1.6.0",
+    "flowbite-vue": "^0.1.0",
     "luxon": "^1.28.1",
     "nuxt-permissions": "^0.2.4",
     "pinia": "^2.1.7",

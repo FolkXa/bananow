@@ -31,8 +31,11 @@ Route::controller(AuthController::class)->middleware(['auth:sanctum'])->group(fu
 Route::group([
     'middleware' => 'api'
 ], function () {
-    Route::get('/getContacts/{user_id}', [AuthController::class, 'getContacts']);
-    Route::post('/updateContacts/{user_id}', [AuthController::class, 'updateContacts']);
+    Route::get('/getContacts/{user_id}', [UserController::class, 'getContacts']);
+    Route::post('/updateContacts/{user_id}', [UserController::class, 'updateContacts']);
+    Route::get('/getStaffs', [UserController::class, 'getStaffs']);
+    Route::post('/deleteStaff/{user}', [UserController::class, 'deleteStaff']);
+    Route::post('/upload', [UserController::class, 'upload']);
 });
 
 Route::group([

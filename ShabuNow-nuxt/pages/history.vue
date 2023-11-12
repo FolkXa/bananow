@@ -90,7 +90,7 @@ function categorizeStatus() {
       quantity: allQuantity,
       sumPrice: allPrice
     })
-    let date = new Date(order.order_date);
+    let date = new Date(order.receiving_time);
     date.setHours(date.getHours() + 14);
     orderTable[index].push({
       order_id : order.id,

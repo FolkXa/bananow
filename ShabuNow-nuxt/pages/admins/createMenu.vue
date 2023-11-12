@@ -17,9 +17,9 @@
             </div>
             <div class="bg-cover-overlay"></div>
           </div>
-
+          <p class="mt-2">Name*</p>
           <InputField
-              class="mt-4"
+              class="mt-0"
               placeholder="ชื่อเมนู"
               type="text"
               name="name"
@@ -27,33 +27,35 @@
               @input="checkName"
           />
           <span v-if="errors.name" class="text-red-500">{{
-              errors.name
+              errors.name[0]
             }}</span>
+          <p class="mt-2">Price*</p>
           <InputField
-              class="mt-4"
+              class="mt-0"
               placeholder="ราคา (THB)"
               type="number"
               name="price"
               v-model="menu.price"
               @input="checkPrice"
           />
+          <p class="mt-2">Status*</p>
           <select v-model="menu.status"
-                  class="mt-4 text-base focus:ring-red-600 focus:border-red-600 focus:ring-1 focus:outline-none p-2.5 block bg-white border border-slate-300 rounded-md w-full py-3 pl-9 pr-3"
+                  class="mt-0 text-base focus:ring-red-600 focus:border-red-600 focus:ring-1 focus:outline-none p-2.5 block bg-white border border-slate-300 rounded-md w-full py-3 pl-9 pr-3"
           >
             <option v-for="option in options" :value="option">
               {{ option }}
             </option>
           </select>
-
+          <p class="mt-2">Description*</p>
           <textarea
               row="2"
-              class="mt-4 text-base block p-2.5 w-full bg-white border border-slate-300 rounded-lg focus:ring-red-600 focus:border-red-600 focus:ring-1 focus:outline-none"
+              class="mt-0 text-base block p-2.5 w-full bg-white border border-slate-300 rounded-lg focus:ring-red-600 focus:border-red-600 focus:ring-1 focus:outline-none"
               placeholder="คำอธิบายเพิ่มเติม"
               v-model="menu.description"
               @input="checkDescription(menu.description)"
           ></textarea>
           <span v-if="errors.description" class="text-red-500">{{
-              errors.description
+              errors.description[0]
             }}</span>
           <div class="mx-auto my-8">
             <label
@@ -62,12 +64,20 @@
             >
             <input
                 id="example1"
+                accept="image/*"
                 type="file"
                 class="mt-2 block w-full text-sm file:mr-4 file:rounded-md file:border-0 file:bg-slate-700 file:py-2 file:px-4 file:text-sm file:font-semibold file:text-white hover:file:bg-slate-900 focus:outline-none disabled:pointer-events-none disabled:opacity-60"
+                @change="onChange"
             />
+            <div id="preview">
+              <img v-if="item.imageUrl" :src="item.imageUrl" alt="" />
+            </div>
           </div>
           <hr class="mt-4">
-          <Button class="mt-4 w-full">
+          <span v-if="message" class="text-red-500">{{
+              message
+            }}</span>
+          <Button class="mt-4 w-full" type="submit">
             <slot name="button">ยืนยัน</slot>
           </Button>
         </div>
@@ -77,6 +87,8 @@
 </template>
 <script setup lang="js">
 
+import axios from "axios";
+
 const auth = useAuthStore();
 
 const menu = reactive({
@@ -85,10 +97,19 @@ const menu = reactive({
   description : '',
   status : 'available',
   imgPath : ''
-
 });
+
+const item = reactive( {
+  imageUrl : null
+})
 const options = ['available', 'outofstock']
 
+
+function onChange(e) {
+  const file = e.target.files[0]
+  menu.imgPath = file;
+  item.imageUrl = URL.createObjectURL(file)
+}
 function checkName() {
   if (menu.name.length > 20) {
     menu.name = menu.name.substring(0, 20)
@@ -107,33 +128,54 @@ function checkDescription() {
     menu.description = menu.description.substring(0, 30)
   }
 }
-const errors = reactive({
-  name: null,
-  description: null
-})
+const errors = ref([]);
+const message = ref();
 async function onSubmit() {
-  if (menu.name.length === 0) {
-    errors.name = 'ห้ามว่าง';
-  } else {
-    errors.name = null;
-  }
-  if (menu.description.length === 0) {
-    errors.description = "ห้ามว่าง";
-  } else {
-    errors.description = null;
-  }
-  const name = menu.name;
-  const price = menu.price;
-  const imgPath = menu.imgPath;
-  const description = menu.description;
-  const status = menu.status;
-  if (errors.name === null && errors.description === null) {
+  try {
+    // let formData = new FormData();
+    // formData.append('imgPath', menu.imgPath);
+    // const response = await axios.post('http://localhost/api/upload', formData, {
+    //   header : {
+    //     "content-type" : "multipart/form-data"
+    //   }
+    // })
+    // console.log(response);
     const response = await $fetch(`http://localhost/api/menu/store`, {
       method : 'POST',
-      body : { name, price, imgPath, description, status }
+      body : { ...menu }
     });
-    console.log(response);
+    console.log(response)
+  } catch (error) {
+    console.log('error : ' + error)
+    if (error.data.errors) {
+      errors.value = error.data.errors
+    } else {
+      message.value = error.data.message
+    }
   }
+
+  // if (menu.name.length === 0) {
+  //   errors.name = 'ห้ามว่าง';
+  // } else {
+  //   errors.name = null;
+  // }
+  // if (menu.description.length === 0) {
+  //   errors.description = "ห้ามว่าง";
+  // } else {
+  //   errors.description = null;
+  // }
+  // const name = menu.name;
+  // const price = menu.price;
+  // const imgPath = menu.imgPath;
+  // const description = menu.description;
+  // const status = menu.status;
+  // if (errors.name === null && errors.description === null) {
+  //   const response = await $fetch(`http://localhost/api/menu/store`, {
+  //     method : 'POST',
+  //     body : { ...menu }
+  //   });
+  //   console.log(response);
+  // }
 }
 </script>
 <style>

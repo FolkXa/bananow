@@ -19,66 +19,72 @@ import { Input } from 'postcss';
           <div class="bg-cover-overlay"></div>
         </div>
 
-        <form @submit.prevent="errorCheck">
+        <form @submit.prevent="handleSubmit">
+          <p class="mt-4">Username *</p>
           <InputField
-              class="mt-4"
+              class="mt-0"
               type="text"
               name="username"
               placeholder="Username"
-              v-model="username"
+              v-model="form.username"
           />
           <span v-if="errors.username" class="text-red-500">{{
-              errors.username
+              errors.username[0]
             }}</span>
+          <p class="mt-4">First Name*</p>
           <InputField
-            class="mt-4"
+            class="mt-0"
             type="text"
             name="firstname"
             placeholder="Firstname"
-            v-model="firstname"
+            v-model="form.firstname"
           />
           <span v-if="errors.firstname" class="text-red-500">{{
-              errors.firstname
+              errors.firstname[0]
             }}</span>
+          <p class="mt-4">Last Name*</p>
           <InputField
-            class="mt-4"
+            class="mt-0"
             type="text"
             name="lastname"
             placeholder="Lastname"
-            v-model="lastname"
+            v-model="form.lastname"
           />
           <span v-if="errors.lastname" class="text-red-500">{{
-              errors.lastname
+              errors.lastname[0]
             }}</span>
+          <p class="mt-2">Email*</p>
           <InputField
-            class="mt-4"
+            class="mt-0"
             type="email"
             name="email"
             placeholder="Email"
-            v-model="email"
+            v-model="form.email"
           />
           <span v-if="errors.email" class="text-red-500">{{
-              errors.email
+              errors.email[0]
             }}</span>
+          <p class="mt-2">Password*</p>
           <InputField
             class="mt-4"
             type="password"
             name="password"
             placeholder="Password"
-            v-model="password"
+            v-model="form.password"
           />
           <span v-if="errors.password" class="text-red-500">{{
-              errors.password
+              errors.password[0]
             }}</span>
+          <p class="mt-2">Confirm Password*</p>
           <InputField
             class="mt-4"
             type="password"
             name="confirm-password"
             placeholder="Confirm password"
-            v-model="confirm_password"
+            v-model="form.password_confirmation"
           />
-          <span v-if="errors.confirm_password" class="text-red-500">{{
-              errors.confirm_password
+          <span v-if="errors.password_confirmation" class="text-red-500">{{
+              errors.password_confirmation[0]
             }}</span>
           <div class="mx-auto my-8">
             <label
@@ -104,76 +110,33 @@ import { Input } from 'postcss';
 </template>
 
 <script setup lang="js">
-const username = ref('');
-const firstname = ref('');
-const lastname = ref('');
-const email = ref('');
-const password = ref('');
-const confirm_password = ref('')
-const imgPath = ref(null)
+const form = reactive({
+  username: "",
+  firstname: "",
+  surname: "",
+  email: "",
+  password: "",
+  password_confirmation: "",
+  phone : "",
+  photos: "",
+  role : "staff"
+});
 
-const errors = reactive({
-  username : null,
-  firstname : null,
-  lastname : null,
-  email : null,
-  password : null,
-  confirm_password : null
-})
-function errorCheck() {
-  if (username.value === '') {
-    errors.username = "username field is required"
-  }else if (username.value.length < 8) {
-    errors.username = "must more than 8 characters"
-  } else {
-    errors.username = null
+const errors = ref([]);
+
+const handleSubmit = async () => {
+  try {
+    const { data } = await $fetch("http://localhost/api/register ", {
+      method: "POST",
+      body: { ...form },
+    });
+
+    console.log(`auth_store_register`, data);
+    navigateTo('/admins')
+  } catch (error) {
+    console.log(error.data.errors)
+    errors.value = error.data.errors;
   }
-
-
-  if (firstname.value === '') {
-    errors.firstname = "firstname field is required";
-  } else if (firstname.value.length < 8) {
-    errors.firstname = "must be more than 8 characters";
-  } else {
-    errors.firstname = null;
-  }
-
-  if (lastname.value === '') {
-    errors.lastname = "lastname field is required";
-  } else if (lastname.value.length < 8) {
-    errors.lastname = "must be more than 8 characters";
-  } else {
-    errors.lastname = null;
-  }
-
-  if (email.value === '') {
-    errors.email = "email field is required";
-  } else if (email.value.length < 8) {
-    errors.email = "must be more than 8 characters";
-  } else {
-    errors.email = null;
-  }
-
-  if (password.value === '') {
-    errors.password = "password field is required";
-  } else if (password.value.length < 8) {
-    errors.password = "must be more than 8 characters";
-  } else {
-    errors.password = null;
-  }
-
-  if (confirm_password.value === '') {
-    errors.confirm_password = "confirm password field is required";
-  } else if (confirm_password.value !== password.value) {
-    errors.confirm_password = "password is not equals confirm password";
-  } else {
-    errors.confirm_password = null;
-  }
-  addStaff()
-}
-
-function addStaff() {
-
 }
 </script>
 

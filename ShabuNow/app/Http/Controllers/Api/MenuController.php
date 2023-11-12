@@ -79,15 +79,12 @@ class MenuController extends Controller
         $request->validate([
             'name' => 'required|string|min:1|max:20',
             'imgPath' => 'nullable|string',
-            'description' => 'nullable|string|min:1|max:30',
+            'description' => 'required|string|min:1|max:30',
             'status' => 'required|in:available,outofstock',
             'price' => 'required|integer|min:1|max:1000',
         ]);
 
         $name = $request->get('name');
-        if (Menu::where('name', $name)) {
-            return abort(400, 'repeated name');
-        }
         $menu = new Menu();
 
         $menu->name = $name;
@@ -95,6 +92,20 @@ class MenuController extends Controller
         $menu->description = $request->get('description');
         $menu->status = $request->get('status');
         $menu->price = $request->get('price');
+
+        // Check if an image file is provided
+        if ($request->hasFile('imgPath')) {
+            // Upload the image
+            $image = $request->file('imgPath');
+            $imageName = time() . '.' . $image->getClientOriginalExtension();
+
+            // Store the image in the 'menu_images' directory in the public disk
+            $image->storeAs('images/menus', $imageName, 'public');
+
+            // Save the image path to the database
+            $menu->imgPath = 'images/menus/' . $imageName;
+        }
+
         $menu->save();
         $menu->refresh();
 

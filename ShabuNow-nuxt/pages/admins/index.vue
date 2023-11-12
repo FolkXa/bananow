@@ -67,7 +67,7 @@
               เพิ่มพนักงานสตาฟ
             </ButtonBorder>
           </a>
-          <a href="/admins/staffList" class="mt-4">
+          <a href="/admins/staff" class="mt-4">
             <ButtonBorder class="w-full">
               <i class="fa-solid fa-list mr-2"></i>
               ดูรายชื่อพนักงานสตาฟ

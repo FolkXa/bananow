@@ -199,6 +199,54 @@ class UserController extends Controller
 
         return response()->json(["status" => "เปลี่ยนรหัสผ่านสำเร็จ!"]);
     }
+    public function getContacts(string $user_id) {
+        return User::find($user_id)->contacts;
+    }
+
+    public function updateContacts(Request $request, string $user_id) {
+        $request->validate([
+            'contacts' => 'required'
+        ]);
+        $user = User::find($user_id);
+        $user->contacts = $request->get('contacts');
+        $user->save();
+        return response()->json(['message' => 'update success']);
+
+    }
+
+    public function getStaffs() {
+        return User::where('role', 'staff')->get();
+    }
+
+    public function deleteStaff(User $user) {
+//        $request->validate([
+//            'id' => 'required',
+//            'username' => 'required|string|min:8|max:20',
+//            'email' => 'required|email',
+//            'firstname' => 'required|string',
+//            'lastname' => 'required|string',
+//        ]);
+        $user->delete();
+        return [
+            'Done'
+        ];
+    }
+
+    public function upload(Request $request) {
+        $request->validate([
+            'imgPath' => 'required'
+        ]);
+        $user = User::find(1);
+        if ($request->file()) {
+            $filename = time().'_.png';
+            return $request->file();
+            $filepath = $request->file()->storeAs('images/menus', $filename, 'public');
+            $user->imgPath = '/storage/' . $filepath;
+            $user->save();
+            return response()->json(['success' => 'file upload successfully']);
+        }
+        return null;
+    }
 
     /**
      * Remove the specified resource from storage.
