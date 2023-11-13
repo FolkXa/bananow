@@ -121,6 +121,7 @@ let data = null;
 console.log(auth.getUser.role)
 async function getPrice() {
   data = await $fetch(`http://localhost/api/order/${auth.getUser.id}/status/ordering`);
+  console.log(data)
   if (data) {
     let totalPrice = 0;
     data.menus?.forEach(menu => {

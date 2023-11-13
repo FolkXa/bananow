@@ -28,7 +28,7 @@
 <!--                </p>-->
 
                 <!-- Add menu button -->
-                <Button @click="sendBill" class="mt-8 py-4 w-full md:w-auto">
+                <Button v-if="!error" @click="sendBill" class="mt-8 py-4 w-full md:w-auto">
                     <i class="bi bi-cash mr-1"></i>
                     ยืนยันการสั่งซื้อ
                 </Button>

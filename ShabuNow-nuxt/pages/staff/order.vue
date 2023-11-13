@@ -31,9 +31,10 @@
             {{ 'id:'+ order.id +  ' receiving time : ' + order.date_time }}
           </template>
         </Table>
-        <p class="text-xl">{{'ชื่อลูกค้า : ' + order.user.firstname + ' ' + order.user.lastname
-          + '   เบอร์โทรศัพท์ : ' + order.user.phone}}</p>
-        <p v-if="order.user.contacts" class="md-6 text-xl">{{ 'ช่องทางติดต่ออื่นๆ : ' + order.user.contacts }}</p>
+        {{ order.user }}
+        <p class="text-xl">{{'ชื่อลูกค้า : ' + order.user?.firstname + ' ' + order.user?.lastname
+          + '   เบอร์โทรศัพท์ : ' + order.user?.phone}}</p>
+        <p v-if="order.user?.contacts" class="md-6 text-xl">{{ 'ช่องทางติดต่ออื่นๆ : ' + order.user?.contacts }}</p>
         <div v-if="order.status === 'pending'" class="flex flex-row md-4 mt-3">
           <ButtonBorder @click="accept(order.id)"> Accept </ButtonBorder>
           <ButtonBorder @click="reject(order.id)" class="ml-4"> Reject </ButtonBorder>
