@@ -149,6 +149,7 @@ function formatPhoneNumber() {
   }
 }
 const handleSubmit = async () => {
+  console.log('eieiei')
   try {
     // const response = await auth.register(username, firstname, surname, email, password, password_confirmation, photos);
     const response = await auth.register(form);
@@ -161,6 +162,7 @@ const handleSubmit = async () => {
     console.log(error.data.errors)
     // console.log(error.data.errors.email[0]);
     errors.value = error.data.errors;
+    console.log(errors.value.email[0])
   }
 };
 definePageMeta({

@@ -27,7 +27,7 @@ class UserFactory extends Factory
             'remember_token' => Str::random(10),
             'role' => $role[array_rand($role)],
             'firstname' => fake()->firstName(),
-            'surname' => fake()->lastName()
+            'lastname' => fake()->lastName()
         ];
     }
 
