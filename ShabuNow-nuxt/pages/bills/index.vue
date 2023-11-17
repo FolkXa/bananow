@@ -9,11 +9,13 @@
         <ContentContainer>
             <Table :datas="menuTable" :headers="tableHeaders" class="mt-8">
                 <template v-slot:title>
-                    {{ auth.getUser.username }}
+                    Your Order
                 </template>
             </Table>
-          <h1 class="text-2xl text-gray-700 mr-2">ยืนยันวันและเวลามารับของ</h1>
-          <input class="border-2 border-black rounded-md m-2" type="datetime-local" v-model="value" />
+          <h1 class="text-2xl text-gray-700">รายละเอียดเพิ่มเติม</h1>
+          <input-field v-model="details" class="w-1/2 m-2"></input-field>
+          <h1 class="text-2xl text-gray-700">ยืนยันวันและเวลามารับของ</h1>
+          <input class="border-2 border-black rounded-md m-2" type="datetime-local" v-model="value"/>
           <p class="text-red-600 text-xl ml-2 ease-in duration-150">{{ error }}</p>
             <!-- Total Price -->
             <TotalPrice>
@@ -64,6 +66,7 @@ import {navigateTo} from "#app";
 const auth = useAuthStore();
 let order;
 const menuTable = []
+const details = ref();
 async function getPrice() {
   order = await $fetch(`http://localhost/api/order/${auth.getUser.id}/status/ordering`);
   if (order) {
@@ -86,22 +89,24 @@ const price = await getPrice();
 
 const date = new Date()
 const maxDate = new Date()
+let isTimeChange = false;
 maxDate.setDate(maxDate.getDate() + 2);
-console.log('max day : ' , maxDate)
+// console.log('max day : ' , maxDate)
 const tmpFormattedDate = date
 tmpFormattedDate.setHours(tmpFormattedDate.getHours() + 7);
 const formattedDate = tmpFormattedDate.toISOString();
-console.log('formattted : ', formattedDate)
+// console.log('formattted : ', formattedDate)
 
 const value = ref(formattedDate)
 const error = ref()
-console.log(value)
+// console.log(value)
 
 
 watch(value, (newValue, oldValue) => {
-  checkValue(newValue, oldValue);
+  checkValue(newValue);
+  isTimeChange = true
 });
-function checkValue(newValue, oldValue) {
+function checkValue(newValue) {
   let newDate = Date.parse(newValue);
   if (newDate < new Date()) {
     error.value = 'โปรดเลือกเวลาหลังจากปัจจุบัน'
@@ -109,17 +114,30 @@ function checkValue(newValue, oldValue) {
     error.value = 'สามารถเลือกเวลาส่งได้ 2 วันจากเวลาปัจจุบัน'
   } else {
     error.value = ''
+    return true
   }
 }
 
 
 async function sendBill() {
-  let receiving_time = value.value.slice(0,19).split('T').join(' ');
+  let receiving_time = null
+  let detail = details.value
+  if (isTimeChange) {
+    if (checkValue(value.value.slice(0,16))) {
+      receiving_time = value.value.slice(0,19).split('T').join(' ')
+    } else {
+      return;
+    }
+  } else {
+    const currentDate = new Date()
+    currentDate.setHours(currentDate.getHours() + 7);
+    receiving_time = currentDate.toISOString().slice(0,19).split('T').join(' ')
+  }
   const response = await $fetch(`http://localhost/api/order/${order.id}/updateOrderStatus`, {
     method: 'POST',
-    body: { receiving_time }
+    body: { detail, receiving_time }
   });
-  navigateTo('/home')
+  navigateTo('/history')
   console.log(response);
 }
 </script>

@@ -8,7 +8,7 @@
         <form @submit.prevent="handleSubmit" action="" class="flex flex-col gap-4 mt-0">
           <p class="mt-2">Username*</p>
           <InputField
-            class="p-2 rounded-xl mt-0"
+            class="m-0 rounded-xl"
             type="text"
             name="username"
             placeholder="Username"
@@ -17,20 +17,20 @@
           <span v-if="errors.username" class="text-red-500">{{
             errors.username[0]
           }}</span>
-          <p class="mt-2">First Name*</p>
+          <p class="m-0">First Name*</p>
           <InputField
-            class="p-2 rounded-xl"
+            class="p-0 rounded-xl m-0"
             type="text"
             name="firstname"
-            placeholder="Firstname"
+            placeholder="First Name"
             v-model="form.firstname"
           />
           <span v-if="errors.firstname" class="text-red-500">{{
             errors.firstname[0]
           }}</span>
-          <p class="mt-2">Last Name*</p>
+          <p class="mt-0">Last Name*</p>
           <InputField
-            class="p-2 rounded-xl"
+            class="p-0 rounded-xl mt-0"
             type="text"
             name="lastname"
             placeholder="Last Name"
@@ -39,9 +39,9 @@
           <span v-if="errors.lastname" class="text-red-500">{{
             errors.surname[0]
           }}</span>
-          <p class="mt-2">Email*</p>
+          <p class="mt-0">Email*</p>
           <InputField
-            class="p-2 rounded-xl"
+            class="p-0 rounded-xl"
             type="email"
             name="email"
             placeholder="Email"
@@ -50,9 +50,9 @@
           <span v-if="errors.email" class="text-red-500">{{
             errors.email[0]
           }}</span>
-          <p class="mt-2">Password*</p>
+          <p class="mt-0">Password*</p>
           <InputField
-            class="p-2 rounded-xl"
+            class="p-0 rounded-xl"
             type="password"
             name="password"
             placeholder="Password"
@@ -61,9 +61,9 @@
           <span v-if="errors.password" class="text-red-500">{{
             errors.password[0]
           }}</span>
-          <p class="mt-2">Confirm Password*</p>
+          <p class="mt-0">Confirm Password*</p>
           <InputField
-            class="p-2 rounded-xl"
+            class="p-0 rounded-xl"
             type="password"
             name="confirmPassword"
             placeholder="Confirm Password"
@@ -72,8 +72,9 @@
           <span v-if="errors.password_confirmation" class="text-red-500">{{
             errors.password_confirmation[0]
           }}</span>
+          <p>Phone Number*</p>
           <InputField
-              class="p-2 rounded-xl"
+              class="p-0 rounded-xl"
               type="text"
               name="phone"
               placeholder="Phone Number"
@@ -111,7 +112,7 @@
         </form>
       </div>
       <!-- image -->
-      <div class="w-1/2 sm:block hidden">
+      <div class="w-1/2 sm:block hidden pt-14">
         <img
           class="rounded-2xl"
           src="https://images.unsplash.com/photo-1549048085-bab2f1f49f65?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2487&q=80"
@@ -128,7 +129,7 @@ const token = useTokenStore();
 const form = reactive({
   username: "",
   firstname: "",
-  surname: "",
+  lastname: "",
   email: "",
   password: "",
   password_confirmation: "",
@@ -149,7 +150,6 @@ function formatPhoneNumber() {
   }
 }
 const handleSubmit = async () => {
-  console.log('eieiei')
   try {
     // const response = await auth.register(username, firstname, surname, email, password, password_confirmation, photos);
     const response = await auth.register(form);
@@ -159,10 +159,8 @@ const handleSubmit = async () => {
     console.log('res : ',response)
     await auth.login();
   } catch (error) {
-    console.log(error.data.errors)
     // console.log(error.data.errors.email[0]);
     errors.value = error.data.errors;
-    console.log(errors.value.email[0])
   }
 };
 definePageMeta({

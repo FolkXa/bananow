@@ -7,7 +7,7 @@
       <!-- <h1>email : {{ auth.getUser?.email }}</h1>
       <h1>password :{{ auth.getUser?.surname }}</h1>
       <h1>username: {{ auth.getUser }}</h1> -->
-      <h1>all :{{ auth.getUser.username }}</h1>
+<!--      <h1>all :{{ auth.getUser.username }}</h1>-->
 
       <!-- <template v-if="token.getStatus">
         <button @click.prevent="auth.logout()">Logout</button>

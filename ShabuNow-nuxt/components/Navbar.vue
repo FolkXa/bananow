@@ -11,11 +11,11 @@
           <img
             class="w-[64px] md:w-[64px] ease-out duration-300"
             src="~/assets/img/logo.png"
-            alt="ShabuNow"
+            alt="EzyFry"
           />
         </div>
         <h1 class="text-2xl md:text-xl text-red-600 font-bold ease-out duration-300">
-          Shabu<span class="text-black">Now</span>
+          Easy<span class="text-black">Fry</span>
         </h1>
       </a>
       <!-- Toggle Menu -->

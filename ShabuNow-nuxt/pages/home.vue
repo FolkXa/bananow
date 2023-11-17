@@ -5,7 +5,7 @@
       <!-- debug by pooh -->
       <!-- <h1>email : {{ auth.getUser?.email }}</h1>
       <h1>password :{{ auth.getUser?.surname }}</h1> -->
-      <h1>all :{{ auth.getUser }}</h1>
+<!--      <h1>all :{{ auth.getUser }}</h1>-->
       <!-- <template v-if="token.getStatus">
         <button class="text-red-500" @click.prevent="auth.logout()">Logout</button>
         <h1>{{ token.getStatus }}</h1>
@@ -63,13 +63,17 @@
                       ฿
                       {{ menu.price }}
                     </p>
+                    <p class="mt-2 text-xl font-light">
+
+                      {{ menu.description }}
+                    </p>
                     <div class="w-full">
                       <div class="custom-number-input h-10 w-full flex flex-col items-center justify-center ">
                         <label for="custom-input-number" class="w-full text-gray-700 text-base text-center font-semibold">
                           <slot name="counter_title">
                           </slot>
                         </label>
-                        <div class="flex flex-row h-10 w-full border rounded-lg relative bg-transparent mt-1">
+                        <div v-if="menu.status === 'available'" class="flex flex-row h-10 w-full border rounded-lg relative bg-transparent mt-1">
                           <button @click="down(menu.id)" data-action="decrement" class="text-gray-600 hover:text-gray-700 hover:bg-gray-100 h-full w-20 rounded-l cursor-pointer outline-none">
                             <span class="m-auto text-2xl font-thin">−</span>
                           </button>
@@ -81,6 +85,10 @@
                           <button @click="up(menu.id)" data-action="increment" class="text-gray-600 hover:text-gray-700 hover:bg-gray-100 h-full w-20 rounded-r cursor-pointer">
                             <span class="m-auto text-2xl font-thin">+</span>
                           </button>
+                        </div>
+                        <div v-else class="flex justify-center h-10 w-full border rounded-lg relative bg-red-400 mt-1 p-1">
+                          <p class="text-black text-xl">out of stock</p>
+
                         </div>
                       </div>
                     </div>
@@ -113,14 +121,19 @@ const counter = ref([]);
 const table_id = 3;
 const auth = useAuthStore();
 if (auth.getUser.role === 'admin') {
-  navigateTo('/admins/editMenu')
+  navigateTo('')
 } else if (auth.getUser.role === 'staff') {
-  navigateTo('/staff/order')
+  navigateTo('')
 }
 let data = null;
-console.log(auth.getUser.role)
 async function getPrice() {
-  data = await $fetch(`http://localhost/api/order/${auth.getUser.id}/status/ordering`);
+  try {
+    data = await $fetch(`http://localhost/api/order/${auth.getUser.id}/status/ordering`);
+  } catch (error) {
+    if (error.message === "Too Many Attempts.") {
+      setTimeout(getPrice, 5 * 1000); // retry after 5 seconds
+    }
+  }
   console.log(data)
   if (data) {
     let totalPrice = 0;
@@ -157,46 +170,54 @@ function checkMinValue(id) {
     counter.value[id] = 1
   }
 }
-
-const menus = await $fetch("http://localhost/api/menu/available", {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-      },
-});
+const menus = ref([]);
+await fetchMenu()
+console.log('menus : ', menus)
+async function fetchMenu() {
+  try {
+    menus.value = await $fetch("http://localhost/api/menu");
+    for (let menu of menus.value) {
+      counter.value[menu.id] = 0;
+    }
+  } catch (error) {
+    if (error.message === "Too Many Attempts.") {
+      setTimeout(fetchMenu, 5 * 1000); // retry after 5 seconds
+    }
+  }
+}
 function addPrice(menu_id) {
-  price.value += menus[menu_id-1].price;
+  price.value += menus.value[menu_id-1].price;
 }
 function downPrice(menu_id) {
-  price.value -= menus[menu_id-1].price;
-}
-
-for (const menu of menus) {
-  counter.value[menu.id] = 0;
+  price.value -= menus.value[menu_id-1].price;
 }
 
 const price = ref(0);
 price.value = await getPrice();
 console.log(auth.getUser)
-if (menus) {
-  menus[1].pivot = {
+if (menus.value) {
+  menus.value[1].pivot = {
     quantity: 0
   }
 }
 async function sendOrder() {
-  data = await $fetch(`http://localhost/api/order/${auth.getUser.id}/status/ordering`);
+  // data = await $fetch(`http://localhost/api/order/${auth.getUser.id}/status/ordering`);
   const order_id = data.id? data.id : 0;
-  const menuSender = [];
-  menus.forEach(item => {
+  const menuSender = [{}];
+  menus.value.forEach(item => {
     if (counter.value[item.id]) {
       menuSender[item.id] = counter.value[item.id];
     }
   });
-  const response = await $fetch(`http://localhost/api/order/${auth.getUser.id}/allStore`, {
-    method: 'POST',
-    body: {order_id, menuSender}
-  })
-  console.log(response)
-  window.location.href ='/bills'
+  try {
+    const response = await $fetch(`http://localhost/api/order/${auth.getUser.id}/allStore`, {
+      method: 'POST',
+      body: {order_id, menuSender}
+    })
+    console.log(response)
+    navigateTo('/bills')
+  } catch (error) {
+    console.log(error.data)
+  }
 }
 </script>

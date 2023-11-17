@@ -19,7 +19,7 @@ class OrderFactory extends Factory
     {
         $status = array('ordering','pending','in_queue','ready','done', 'rejected');
         return [
-            'detail' => fake()->realTextBetween(120,200,2),
+            'detail' => fake()->realTextBetween(5,30,2),
             'status' => $status[array_rand($status)],
             'user_id' => fake()->numberBetween(1,20),
             'receiving_time' => fake()->dateTime(),

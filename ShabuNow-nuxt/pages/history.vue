@@ -24,12 +24,15 @@
         </div>
 
       </HeaderContainer>
-      <ContentContainer v-for="order in orders" class="w-full">
+      <ContentContainer v-for="order in orders" class="w-full border border-gray-200 p-3 rounded">
         <Table :datas="order.menus" :headers="tableHeaders" class="m-0 w-full">
           <template v-slot:title>
-            {{ order.date_time }}
+            Order ที่ {{ number - order.index }} , เวลารับของ : {{ order.date_time }}
           </template>
         </Table>
+        <p class="text-xl">วันที่สั่ง : {{ order.order_date }}</p>
+        <p v-if="order.detail" class="text-xl">รายละเอียดเพิ่มเติม : {{order.detail}}</p>
+        <span v-if="order.note" class="text-xl text-red-500 font-red">หมายเหตุ : {{ order.note }}</span>
         <hr/>
         <!-- end -->
       </ContentContainer>
@@ -56,11 +59,14 @@ const tableHeaders = [
   'ราคา',
 ]
 const auth = useAuthStore();
-let orders = await $fetch(`http://localhost/api/order/${auth.getUser.id}/non_status/ordering`);
+let orders = null
 // orders = await $fetch(`http://localhost/api/order/18/non_status/ordering`);
-console.log(orders)
 const orderTable = reactive([])
-function categorizeStatus() {
+let number = 1;
+const intervalId = ref();
+async function categorizeStatus(s) {
+  clearInterval(intervalId.value)
+  let orders = await $fetch(`http://localhost/api/order/${auth.getUser.id}${s}`);
   if (!orders) {
     return
   }
@@ -91,16 +97,23 @@ function categorizeStatus() {
       sumPrice: allPrice
     })
     let date = new Date(order.receiving_time);
-    date.setHours(date.getHours() + 14);
+    let order_date = new Date(order.order_date);
+    order_date.setHours(order_date.getHours() + 7)
+    date.setHours(date.getHours() + 7);
     orderTable[index].push({
+      index : number,
+      detail : order.detail,
       order_id : order.id,
       status : order.status,
+      note : order.note,
       date_time : date.toUTCString().split('GMT').join(''),
+      order_date : order_date.toUTCString().split('GMT').join(''),
       menus : menus
     });
+    number++
   })
+  intervalId.value = setInterval(() => categorizeStatus(s), 5000)
 }
-categorizeStatus()
 console.log(orderTable)
-
+categorizeStatus('/non_status/ordering')
 </script>

@@ -25,7 +25,7 @@ class RegisterRequest extends FormRequest
             'username' => 'required|string|unique:users|min:8|max:20',
             'email' => 'required|email|unique:users',
             'password' => 'required|confirmed|min:8|max:20',
-            'phone' => 'unique:users|nullable|min:10|max:15',
+            'phone' => 'unique:users|min:10|max:15',
             'contacts' => 'nullable',
             'role' => 'nullable|in:admin,chef,staff,customer',
             'imgPath' => 'nullable|string',

@@ -62,6 +62,7 @@ class OrderController extends Controller
         }
         $order_id = $order->id;
         $menu_id = 0;
+        $order->menus()->detach();
         foreach ($menus as $menuQuantity) {
             if ($menu_id === 0) {
                 $menu_id++;
@@ -114,22 +115,28 @@ class OrderController extends Controller
         return response()->json('add menu Successfully');
     }
 
-    public function updateOrderStatus(Request $request, string $order_id) {
+    public function updateOrderStatus(Request $request, string $order_id) { // ordering to pending
         $request->validate([
+            'detail' => ['required', 'max:255'],
             'receiving_time' => 'required'
         ]);
         $order = Order::find($order_id);
         $order->status = 'pending';
         $order->receiving_time = $request->get('receiving_time');
+        $order->detail = $request->get('detail');
         $order->order_date = date("Y-m-d H:i:s");
         $order->save();
         $order->refresh();
         return $order;
     }
 
-    public function updateStatus(string $order_id ,string $status) {
+    public function updateStatus(Request $request,string $order_id ,string $status) { // non ordering to anything
         $order = Order::find($order_id);
         $order->status = $status;
+        $note = $request->get('note');
+        if ($note) {
+            $order->note = $note;
+        }
         $order->save();
         $order->refresh();
         return $order;
