@@ -76,7 +76,7 @@
                 {{ transaction.change_date }}
               </p>
               <p class="mt-1">
-                Changer : {{ transaction.user.username }}
+                Changer : {{ transaction.user? transaction.user.username : 'System' }}
               </p>
             </div>
           </div>
