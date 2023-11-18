@@ -22,7 +22,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'firstname',
-        'surname',
+        'lastname',
         'username',
         'email',
         'password',
@@ -53,5 +53,10 @@ class User extends Authenticatable
     public function orders() : HasMany
     {
         return $this->hasMany(Order::class);
+    }
+
+    public function transactions() : HasMany
+    {
+        return $this->hasMany(Transaction::class);
     }
 }

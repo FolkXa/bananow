@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\Table;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 
@@ -117,14 +118,14 @@ class OrderController extends Controller
 
     public function updateOrderStatus(Request $request, string $order_id) { // ordering to pending
         $request->validate([
-            'detail' => ['required', 'max:255'],
+            'detail' => ['nullable', 'max:255'],
             'receiving_time' => 'required'
         ]);
         $order = Order::find($order_id);
         $order->status = 'pending';
         $order->receiving_time = $request->get('receiving_time');
         $order->detail = $request->get('detail');
-        $order->order_date = date("Y-m-d H:i:s");
+        $order->order_date = Carbon::now()->timezone('Asia/Bangkok')->format('Y-m-d H:i:s');
         $order->save();
         $order->refresh();
         return $order;

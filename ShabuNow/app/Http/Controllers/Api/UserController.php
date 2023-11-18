@@ -32,7 +32,7 @@ class UserController extends Controller
             'firstname' => 'required|string|max:255',
             'lastname' => 'required|string|max:255',
         ]);
-        
+
         $user = User::create($request->all());
         $user->lastname = $request->get('lastname');
         $user->save();
