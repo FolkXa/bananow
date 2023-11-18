@@ -55,18 +55,33 @@
             {{ 'id : '+ order.id +  ' เวลามารับของ : ' + order.date_time }}
           </template>
         </Table>
-        <div class="flex flex-row w-3/4">
-          <div class="w-1/2">
-            <p v-if="order.detail" class="text-xl">รายละเอียดเพิ่มเติม : {{order.detail}}</p>
-            <p class="text-xl">{{'ชื่อลูกค้า : ' + order.user?.firstname + ' ' + order.user?.lastname}}</p>
-            <p class="text-xl">{{'เบอร์โทรศัพท์ : ' + order.user?.phone}}</p>
-            <p v-if="order.user?.contacts" class="md-6 text-xl">{{ 'ช่องทางติดต่ออื่นๆ : ' + order.user?.contacts }}</p>
+        <Nav>
+          <NavItem :isActive="!select[order.id]" @click="selectOrderDetail(order.id)">Order Detail</NavItem>
+          <NavItem :isActive="select[order.id]" @click="selectTransaction(order.id)">Transactions</NavItem>
+        </Nav>
+        <hr class="border border-black">
+        <div v-if="!select[order.id]" class="flex flex-col justify-center bg-slate-200 rounded my-3 p-3">
+          <p v-if="order.detail" class="text-xl">รายละเอียดเพิ่มเติม : {{order.detail}}</p>
+          <p class="text-xl">{{'ชื่อลูกค้า : ' + order.user?.firstname + ' ' + order.user?.lastname}}</p>
+          <p class="text-xl">{{'เบอร์โทรศัพท์ : ' + order.user?.phone}}</p>
+          <p v-if="order.user?.contacts" class="md-6 text-xl">{{ 'ช่องทางติดต่ออื่นๆ : ' + order.user?.contacts }}</p>
+        </div>
+        <div v-else class="w-3/4 text-xl">
+          <div v-if="order.transactions.length" class="flex flex-row w-full text-xl my-4 pl-8">
+            <div v-for="transaction in order.transactions" class="w-1/3 bg-slate-200 rounded p-4 mx-2">
+              <p>
+                {{transaction.before_status}} --> {{transaction.after_status}}
+              </p>
+              <p class="mt-1">
+                {{ transaction.change_date }}
+              </p>
+              <p class="mt-1">
+                Changer : {{ transaction.user.username }}
+              </p>
+            </div>
           </div>
-          <div class="flex flex-col w-1/2 text-xl">
-            transactions
-            <transition>
-
-            </transition>
+          <div v-else class="justify-center items-center">
+            No transactions
           </div>
         </div>
         <div v-if="order.status === 'pending'" class="flex flex-row md-4 mt-3">
@@ -153,6 +168,7 @@ const tableHeaders = [
   'ราคา',
 ]
 let isOpen = ref(false);
+const select = ref([]);
 const auth = useAuthStore();
 if (auth.getUser.role !== 'staff') {
   navigateTo('/');
@@ -218,7 +234,8 @@ async function categorizeStatus() {
       status : order.status,
       user : order.user,
       date_time : date.toUTCString().split('GMT').join(''),
-      menus : menus
+      menus : menus,
+      transactions : order.transactions
     });
   })
   intervalId.value = setInterval(() => categorizeStatus, 30000)
@@ -324,13 +341,22 @@ async function filterName() {
         status : order.status,
         user : order.user,
         date_time : date.toUTCString().split('GMT').join(''),
-        menus : menus
+        menus : menus,
+        transactions : order.transactions
       });
     })
     orderTable.value = orderSearchTable;
     console.log('after filter :', orderTable.value)
     intervalId.value = setInterval(() => filterName(), 30000)
   }
+}
+
+function selectOrderDetail(id) {
+  select.value[id] = false
+}
+
+function selectTransaction(id) {
+  select.value[id] = true
 }
 
 await categorizeStatus()

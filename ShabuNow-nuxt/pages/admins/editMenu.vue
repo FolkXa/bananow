@@ -46,7 +46,7 @@
                   <img
                       class="rounded-xl object-cover h-[256px] w-full"
                       :src="'http://localhost' + menu.imgPath || ''"
-                      alt=""/>
+                      alt="" loading="lazy"/>
 
                   <!-- edit menu button for admin -->
                   <a v-if="auth.getUser.role === 'admin'? '/admins/editMenu' : false" :href="auth.getUser.role === 'admin'? `/admins/menus/${menu.id}` : null"

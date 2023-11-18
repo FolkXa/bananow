@@ -24,7 +24,7 @@ class OrderController extends Controller
 
     }
     public function ordersByNonStatus(string $status) {
-        return Order::with('menus', 'user')->where('status', '!=', $status)
+        return Order::with('menus', 'user', 'transactions', 'transactions.user')->where('status', '!=', $status)
             ->orderBy('status')->orderBy('id', 'ASC')->get();
     }
     public function ordersByStatus(string $status) {
@@ -139,7 +139,7 @@ class OrderController extends Controller
 // Iterate through the orders and update the status
         foreach ($ordersToUpdate as $order) {
             // Create a new transaction record
-            TransactionContoller::add($order->id, null, 'ready', 'done');
+            TransactionContoller::add($order->id, '', 'ready', 'done');
             // Update the order status
             $order->status = 'done';
             $order->save();
