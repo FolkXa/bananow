@@ -24,7 +24,7 @@ class OrderController extends Controller
 
     }
     public function ordersByNonStatus(string $status) {
-        return Order::with('menus', 'user')->where('status', '!=', $status)
+        return Order::with('menus', 'user', 'transactions', 'transactions.user')->where('status', '!=', $status)
             ->orderBy('status')->orderBy('id', 'ASC')->get();
     }
     public function ordersByStatus(string $status) {
@@ -131,9 +131,29 @@ class OrderController extends Controller
         return $order;
     }
 
-    public function updateStatus(Request $request,string $order_id ,string $status) { // non ordering to anything
+    public function updateSchedule() {
+        $ordersToUpdate = Order::where('status', 'ready')
+            ->where('receiving_time', '<=', Carbon::now()->timezone('Asia/Bangkok')->format('Y-m-d H:i:s'))
+            ->get();
+
+// Iterate through the orders and update the status
+        foreach ($ordersToUpdate as $order) {
+            // Create a new transaction record
+            TransactionContoller::add($order->id, '', 'ready', 'done');
+            // Update the order status
+            $order->status = 'done';
+            $order->save();
+        }
+        return response()->json('update Schedule Successfully');
+    }
+
+    public function updateStatus(Request $request,string $order_id ,string $status, string $user_id) { // non ordering to anything
         $order = Order::find($order_id);
+        $before = $order->status;
+        $after = $status;
+
         $order->status = $status;
+        TransactionContoller::add($order_id, $user_id, $before, $after);
         $note = $request->get('note');
         if ($note) {
             $order->note = $note;

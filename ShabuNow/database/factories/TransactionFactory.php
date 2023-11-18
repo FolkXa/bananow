@@ -21,8 +21,8 @@ class TransactionFactory extends Factory
         $user_range = User::all()->count();
         $order_range = Order::all()->count();
         return [
-            'order_id' => $this->faker->numberBetween(1, $user_range), // Replace with your actual logic
-            'user_id' => $this->faker->numberBetween(1, $order_range), // Replace with your actual logic
+            'order_id' => $this->faker->numberBetween(1, $order_range), // Replace with your actual logic
+            'user_id' => $this->faker->numberBetween(1, $user_range), // Replace with your actual logic
             'before_status' => $this->faker->randomElement(['pending', 'in_queue', 'ready']),
             'after_status' => $this->faker->randomElement(['in_queue', 'ready','done', 'rejected']),
             'change_date' => $this->faker->dateTimeBetween('-30 days', 'now'),

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 class TransactionContoller extends Controller
 {
@@ -21,6 +23,17 @@ class TransactionContoller extends Controller
     public function store(Request $request)
     {
         //
+    }
+
+    public static function add(string $order_id, string $user_id, string $before, string $after)
+    {
+        Transaction::create([
+            'order_id' => $order_id,
+            'user_id' => $user_id? $user_id: null,
+            'before_status' => $before,
+            'after_status' => $after,
+            'change_date' => Carbon::now()->timezone('Asia/Bangkok')->format('Y-m-d H:i:s'),
+        ]);
     }
 
     /**
