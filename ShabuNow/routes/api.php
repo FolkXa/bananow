@@ -61,7 +61,8 @@ Route::group([
     Route::post('/{user_id}/addMenu', [\App\Http\Controllers\Api\OrderController::class, 'addMenu']);
     Route::post('/{user_id}/allStore', [\App\Http\Controllers\Api\OrderController::class, 'allStore']);
     Route::post('/{order_id}/updateOrderStatus', [\App\Http\Controllers\Api\OrderController::class, 'updateOrderStatus']);
-    Route::post('/{order_id}/{status}', [\App\Http\Controllers\Api\OrderController::class, 'updateStatus']);
+    Route::post('/{order_id}/{status}/{user_id}', [\App\Http\Controllers\Api\OrderController::class, 'updateStatus']);
+    Route::post('/updateSchedule', [\App\Http\Controllers\Api\OrderController::class, 'updateSchedule']);
 });
 
 Route::group([ //customer section --------------------------------------------------------------------------------------------

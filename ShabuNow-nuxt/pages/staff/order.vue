@@ -55,10 +55,20 @@
             {{ 'id : '+ order.id +  ' เวลามารับของ : ' + order.date_time }}
           </template>
         </Table>
-        <p v-if="order.detail" class="text-xl">รายละเอียดเพิ่มเติม : {{order.detail}}</p>
-        <p class="text-xl mt-2">{{'ชื่อลูกค้า : ' + order.user?.firstname + ' ' + order.user?.lastname
-          + '   เบอร์โทรศัพท์ : ' + order.user?.phone}}</p>
-        <p v-if="order.user?.contacts" class="md-6 text-xl">{{ 'ช่องทางติดต่ออื่นๆ : ' + order.user?.contacts }}</p>
+        <div class="flex flex-row w-3/4">
+          <div class="w-1/2">
+            <p v-if="order.detail" class="text-xl">รายละเอียดเพิ่มเติม : {{order.detail}}</p>
+            <p class="text-xl">{{'ชื่อลูกค้า : ' + order.user?.firstname + ' ' + order.user?.lastname}}</p>
+            <p class="text-xl">{{'เบอร์โทรศัพท์ : ' + order.user?.phone}}</p>
+            <p v-if="order.user?.contacts" class="md-6 text-xl">{{ 'ช่องทางติดต่ออื่นๆ : ' + order.user?.contacts }}</p>
+          </div>
+          <div class="flex flex-col w-1/2 text-xl">
+            transactions
+            <transition>
+
+            </transition>
+          </div>
+        </div>
         <div v-if="order.status === 'pending'" class="flex flex-row md-4 mt-3">
           <ButtonBorder @click="accept(order.id)"> Accept </ButtonBorder>
           <ButtonBorder v-if="!rejectField[order.id]" @click="rejectField[order.id] = true" class="ml-4"> Reject </ButtonBorder>
@@ -94,6 +104,19 @@ export default {
 <script setup lang="js">
 
 import {all} from "axios";
+// update schedule
+async function updateSchedule() {
+  try {
+    let r = await $fetch('http://localhost/updateSchedule', {
+      method : 'POST'
+    })
+    console.log(r)
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+setInterval(updateSchedule, 60000);
 
 const status = []
 status.push({
@@ -137,6 +160,7 @@ if (auth.getUser.role !== 'staff') {
 const orders = ref(await $fetch(`http://localhost/api/order/non_status/ordering`))
 const rejectField = ref([]);
 const notes = ref([])
+const transactionOpen = ref([]);
 // orders = await $fetch(`http://localhost/api/order/18/non_status/ordering`);
 orders.value.sort((a, b) => {
   return new Date(a.receiving_time) - new Date(b.receiving_time);
@@ -153,7 +177,7 @@ async function categorizeStatus() {
     return new Date(a.receiving_time) - new Date(b.receiving_time);
   });
   allData = orders.value;
-  if (!orders.value) {
+  if (orders.value.length === 0) {
     return
   }
   let index = -1;
@@ -201,14 +225,14 @@ async function categorizeStatus() {
 }
 // .toUTCString().split('GMT').join('')
 async function accept(id) {
-  const response = await $fetch(`http://localhost/api/order/${id}/in_queue`, {
+  const response = await $fetch(`http://localhost/api/order/${id}/in_queue/${auth.getUser.id}`, {
     method: 'POST'
   });
   location.reload()
 }
 async function reject(id) {
   let note = notes.value[id]
-  const response = await $fetch(`http://localhost/api/order/${id}/rejected`, {
+  const response = await $fetch(`http://localhost/api/order/${id}/rejected/${auth.getUser.id}`, {
     method: 'POST',
     body: { note }
   });
@@ -219,7 +243,7 @@ async function reject(id) {
 }
 
 async function ready(id) {
-  const response = await $fetch(`http://localhost/api/order/${id}/ready`, {
+  const response = await $fetch(`http://localhost/api/order/${id}/ready/${auth.getUser.id}`, {
     method: 'POST'
   });
   location.reload()
@@ -305,6 +329,7 @@ async function filterName() {
     })
     orderTable.value = orderSearchTable;
     console.log('after filter :', orderTable.value)
+    intervalId.value = setInterval(() => filterName(), 30000)
   }
 }
 

@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
         $this->call(UserSeeder::class);
         $this->call(MenuSeeder::class);
         $this->call(OrderSeeder::class);
+        $this->call(TransactionSeeder::class);
         // \App\Models\User::factory(10)->create();
 
         \App\Models\User::factory()->create([
