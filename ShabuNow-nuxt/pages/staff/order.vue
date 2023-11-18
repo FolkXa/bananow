@@ -165,8 +165,9 @@ async function categorizeStatus() {
     if (!status.includes(order.status)) {
       status.push(order.status);
       index++
+    } else {
+      index = status.indexOf(order.status)
     }
-
     if (!orderTable.value[index]) {
       orderTable.value[index] = []
     }
@@ -186,6 +187,7 @@ async function categorizeStatus() {
       sumPrice: allPrice
     })
     let date = new Date(order.order_date)
+    date.setHours(date.getHours() + 7)
     orderTable.value[index].push({
       id : order.id,
       detail :order.detail,
@@ -195,12 +197,6 @@ async function categorizeStatus() {
       menus : menus
     });
   })
-  status = ['pending', 'in_queue', 'ready', 'done', 'rejected']
-  orderTable.value.sort((a, b) => {
-    const statusA = status.indexOf(a[0].status);
-    const statusB = status.indexOf(b[0].status);
-    return statusA - statusB;
-  });
   intervalId.value = setInterval(() => categorizeStatus, 30000)
 }
 // .toUTCString().split('GMT').join('')
@@ -208,7 +204,7 @@ async function accept(id) {
   const response = await $fetch(`http://localhost/api/order/${id}/in_queue`, {
     method: 'POST'
   });
-  await categorizeStatus()
+  location.reload()
 }
 async function reject(id) {
   let note = notes.value[id]
@@ -219,14 +215,14 @@ async function reject(id) {
   console.log(response)
   rejectField.value[id] = false;
   notes.value[id] = '';
-  await categorizeStatus()
+  location.reload()
 }
 
 async function ready(id) {
   const response = await $fetch(`http://localhost/api/order/${id}/ready`, {
     method: 'POST'
   });
-  await categorizeStatus()
+  location.reload()
 }
 
 function filter(status) {
@@ -275,6 +271,8 @@ async function filterName() {
       if (!status.includes(order.status)) {
         status.push(order.status);
         index++
+      } else {
+        index = status.indexOf(order.status)
       }
       if (!orderSearchTable[index]) {
         orderSearchTable[index] = []
@@ -295,6 +293,7 @@ async function filterName() {
         sumPrice: allPrice
       })
       let date = new Date(order.order_date)
+      date.setHours(date.getHours() + 7)
       orderSearchTable[index].push({
         id : order.id,
         detail :order.detail,

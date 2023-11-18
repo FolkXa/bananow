@@ -96,10 +96,11 @@ if (auth.getUser.role !== 'admin') {
 const response = await $fetch(`http://localhost/api/menu/${route.params.id}`)
 const menu = reactive(response);
 const item = reactive( {
-  imageUrl : menu.imgPath
+  imageUrl : menu.imgPath? 'http://localhost' + menu.imgPath : ''
 })
+menu.imgPath = '';
+console.log(item.imageUrl)
 const options = ['available', 'outofstock']
-
 
 function onChange(e) {
   const file = e.target.files[0]

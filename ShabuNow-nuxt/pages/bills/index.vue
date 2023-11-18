@@ -132,7 +132,8 @@ async function sendBill() {
     }
   } else {
     const currentDate = new Date()
-    currentDate.setHours(currentDate.getHours() + 7);
+    currentDate.setHours(currentDate.getHours() + 7)
+    currentDate.setMinutes(currentDate.getMinutes() + 5)
     receiving_time = currentDate.toISOString().slice(0,19).split('T').join(' ')
   }
   const response = await $fetch(`http://localhost/api/order/${order.id}/updateOrderStatus`, {

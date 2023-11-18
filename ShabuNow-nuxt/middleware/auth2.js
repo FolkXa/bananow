@@ -4,7 +4,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
   if (!tokenStore.getStatus) {
     return navigateTo("/login");
   }
-  if (auth.getUser.role == "admin") {
+  if (auth.getUser.role === "admin") {
     return navigateTo("/admins");
   }
 });
