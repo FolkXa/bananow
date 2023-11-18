@@ -59,6 +59,9 @@ const tableHeaders = [
   'ราคา',
 ]
 const auth = useAuthStore();
+if (auth.getUser.role !== 'customer') {
+  navigateTo('/');
+}
 let orders = null
 // orders = await $fetch(`http://localhost/api/order/18/non_status/ordering`);
 const orderTable = reactive([])

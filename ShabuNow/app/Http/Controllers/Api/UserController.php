@@ -25,52 +25,18 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'firstname' => ['required','min:3','max:255'],
-            'surname' => ['required','min:3','max:255'],
-            'username' => ['required','min:3','max:255'],
-            'role' => ['required'],
-            'age' => ['required','integer','min:18','max:100'],
-            'password' => ['min:5','required_with:confirm_password','same:confirm_password'],
-            'confirm_password' => ['min:5'],
-            'email' => ['required','email'],
-            'image' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
-            'phone' => ['required', 'min:10', 'max:15']
+            'username' => 'required|string|unique:users|min:8|max:20',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|confirmed|min:8|max:20',
+            'role' => 'nullable|in:admin,chef,staff,customer',
+            'firstname' => 'required|string|max:255',
+            'lastname' => 'required|string|max:255',
         ]);
-
-        $user = new User();
-        $user->firstname = $request->get('firstname');
-        $user->surname = $request->get('surname');
-        $user->email = $request->get('email');
-        $user->username = $request->get('username');
-        $user->age = $request->get('age');
-        $user->role = $request->get('role');
-        $user->password = Hash::make($request->get('password'));
-
-        // image upload
-        if($request->file('image') != null )
-        {
-            $imagePath = $request->file('image')->store('userImages', 'public'); // Store image in 'public/images' folder
-            $user->imgPath = $imagePath;
-        }
-
-
-        $existUser = User::where('username',$user->username)
-            ->where('id', '!=', $user->id)
-            ->first();
-        if ($existUser !== null){
-            abort(code: 403,message: "This username {$user->username} has been used >:< meow! ");
-        }
-        $existEmail = User::where('email',$user->email)
-            ->where('id', '!=', $user->id)
-            ->first();
-        if ($existEmail !== null){
-            abort(code: 403,message: "This Email {$user->email} has been used >:< meow! ");
-        }
-
-//        $user->name=$username;
+        
+        $user = User::create($request->all());
+        $user->lastname = $request->get('lastname');
         $user->save();
         $user->refresh();
-
         return $user;
     }
 
@@ -233,20 +199,50 @@ class UserController extends Controller
         ];
     }
 
-    public function upload(Request $request) {
+    public function uploadImage(Request $request, string $user_id) { // for users upload image
         $request->validate([
-            'imgPath' => 'required'
+            'imgPath' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
         ]);
-        $user = User::find(1);
-        if ($request->file()) {
-            $filename = time().'_.png';
-            return $request->file();
-            $filepath = $request->file()->storeAs('images/menus', $filename, 'public');
-            $user->imgPath = '/storage/' . $filepath;
-            $user->save();
-            return response()->json(['success' => 'file upload successfully']);
+        $user = User::find($user_id);
+        if ($user === null) {
+            return abort(400, 'invalid user id');
         }
-        return null;
+        $image = $request->file('imgPath');
+        $imageName = time().'.'.$image->extension();
+        $path = 'images/users';
+        $fullPath = '/'.$path.'/'.$imageName;
+        $image->move(public_path($path), $imageName);
+        $user->imgPath = $fullPath;
+        $user->save();
+
+        // Return a JSON response with information about the uploaded file.
+        return response()->json(['image' => ['url' => $fullPath]], 200);
+    }
+
+    public function upload(Request $request) { // for test
+        $request->validate([
+            'imgPath' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+        ]);
+        // Process the uploaded file.
+        $image = $request->file('imgPath');
+        $imageName = time().'.'.$image->extension();
+        $path = 'images/menus';
+        $fullPath = '/'.$path.'/'.$imageName;
+        $image->move(public_path($path), $imageName);
+        $user = User::find(1);
+        $user->imgPath = $fullPath;
+        $user->save();
+
+        // Return a JSON response with information about the uploaded file.
+        return response()->json(['image' => ['url' => $fullPath]], 200);
+//        if ($request->file()) {
+//            $filename = time().'.'.$image->extension();
+//            $filepath = $request->file()->storeAs('images/menus', $filename, 'public');
+//            $user->imgPath = $filepath;
+//            $user->save();
+//            return response()->json(['success' => 'file upload successfully', 'image' => ['url' => $filepath]]);
+//        }
+//        return null;
     }
 
     /**

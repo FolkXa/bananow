@@ -61,9 +61,11 @@ export default {
 
 <script setup lang="js">
 import {useAuthStore} from "~/stores/auth";
-import {navigateTo} from "#app";
 
 const auth = useAuthStore();
+if (auth.getUser.role !== 'customer') {
+  navigateTo('/');
+}
 let order;
 const menuTable = []
 const details = ref();

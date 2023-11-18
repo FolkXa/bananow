@@ -119,7 +119,10 @@
 <script setup lang="js">
 import useMyFetch from "~/composables/useMyFetch";
 import {FwbModal} from "flowbite-vue";
-
+const auth = useAuthStore();
+if (auth.getUser.role !== 'admin') {
+  navigateTo('/');
+}
 const config = useRuntimeConfig()
 let data = await $fetch('http://localhost/api/getStaffs');
 const staffs = ref(data);

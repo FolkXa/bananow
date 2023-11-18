@@ -35,7 +35,7 @@ Route::group([
     Route::post('/updateContacts/{user_id}', [UserController::class, 'updateContacts']);
     Route::get('/getStaffs', [UserController::class, 'getStaffs']);
     Route::post('/deleteStaff/{user}', [UserController::class, 'deleteStaff']);
-    Route::post('/upload', [UserController::class, 'upload']);
+    Route::post('/upload', [UserController::class, 'upload']); //for test only
 });
 
 Route::group([
@@ -74,6 +74,7 @@ Route::group([ //customer section ----------------------------------------------
     Route::post('{user}/updatePassword', [UserController::class, 'updatePassword']);
     Route::delete('{user}/delete', [UserController::class, 'destroy']);
     Route::post('create', [UserController::class, 'store']);
+    Route::post('{user_id}/uploadImage', [UserController::class, 'uploadImage']);
 });
 
 Route::group([ //staff section --------------------------------------------------------------------------------------------

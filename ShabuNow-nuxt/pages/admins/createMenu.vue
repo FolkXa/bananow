@@ -29,7 +29,7 @@
           <span v-if="errors.name" class="text-red-500">{{
               errors.name[0]
             }}</span>
-          <p class="mt-2">Price*</p>
+          <p class="mt-2">Price* (baht)</p>
           <InputField
               class="mt-0"
               placeholder="ราคา (THB)"
@@ -69,11 +69,10 @@
                 class="mt-2 block w-full text-sm file:mr-4 file:rounded-md file:border-0 file:bg-slate-700 file:py-2 file:px-4 file:text-sm file:font-semibold file:text-white hover:file:bg-slate-900 focus:outline-none disabled:pointer-events-none disabled:opacity-60"
                 @change="onChange"
             />
-            <div id="preview">
-              <img v-if="item.imageUrl" :src="item.imageUrl" alt="" />
+            <div id="preview" class="w-1/2 mt-2">
+              <img class="rounded-xl object-cover h-[256px] w-[256px]" v-if="item.imageUrl" :src="item.imageUrl" alt="" />
             </div>
           </div>
-          <hr class="mt-4">
           <span v-if="message" class="text-red-500">{{
               message
             }}</span>
@@ -90,6 +89,9 @@
 import axios from "axios";
 
 const auth = useAuthStore();
+if (auth.getUser.role !== 'admin') {
+  navigateTo('/');
+}
 
 const menu = reactive({
   name : '',
@@ -132,19 +134,22 @@ const errors = ref([]);
 const message = ref();
 async function onSubmit() {
   try {
-    // let formData = new FormData();
-    // formData.append('imgPath', menu.imgPath);
-    // const response = await axios.post('http://localhost/api/upload', formData, {
-    //   header : {
-    //     "content-type" : "multipart/form-data"
-    //   }
-    // })
-    // console.log(response);
-    const response = await $fetch(`http://localhost/api/menu/store`, {
-      method : 'POST',
-      body : { ...menu }
-    });
-    console.log(response)
+    // const response = await $fetch(`http://localhost/api/menu/store`, {
+    //   method : 'POST',
+    //   body : { ...menu }
+    // });
+    // console.log(response)
+    //
+    await axios.post(`http://localhost/api/menu/store`, menu, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    }).then(response => {
+      console.log(response)
+      navigateTo('/admins/editMenu')
+    }).catch(error => {
+      throw error
+    })
   } catch (error) {
     console.log('error : ' + error)
     if (error.data.errors) {

@@ -22,7 +22,7 @@ return new class extends Migration
             $table->enum('role', ['admin','chef','staff','customer'])->default('customer');
             $table->string('imgPath')->nullable();
             $table->string('firstname');
-            $table->string('lastname');
+            $table->string('lastname')->default('');
         });
     }
 

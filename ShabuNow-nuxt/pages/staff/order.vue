@@ -131,6 +131,9 @@ const tableHeaders = [
 ]
 let isOpen = ref(false);
 const auth = useAuthStore();
+if (auth.getUser.role !== 'staff') {
+  navigateTo('/');
+}
 const orders = ref(await $fetch(`http://localhost/api/order/non_status/ordering`))
 const rejectField = ref([]);
 const notes = ref([])
@@ -154,12 +157,15 @@ async function categorizeStatus() {
     return
   }
   let index = -1;
-  let status = ['pending', 'in_queue', 'ready', 'done', 'rejected']
+  let status = []
   orders.value.forEach(order => {
     let menus = [];
     let allPrice = 0;
     let allQuantity = 0;
-    index = status.indexOf(order.status)
+    if (!status.includes(order.status)) {
+      status.push(order.status);
+      index++
+    }
 
     if (!orderTable.value[index]) {
       orderTable.value[index] = []
@@ -189,6 +195,12 @@ async function categorizeStatus() {
       menus : menus
     });
   })
+  status = ['pending', 'in_queue', 'ready', 'done', 'rejected']
+  orderTable.value.sort((a, b) => {
+    const statusA = status.indexOf(a[0].status);
+    const statusB = status.indexOf(b[0].status);
+    return statusA - statusB;
+  });
   intervalId.value = setInterval(() => categorizeStatus, 30000)
 }
 // .toUTCString().split('GMT').join('')
@@ -253,17 +265,19 @@ async function filterName() {
     if (!result) {
       return
     }
-    let index = 0;
-    let status = ['pending', 'in_queue', 'ready', 'done', 'rejected']
-    orderTable.value = [];
+    let index = -1;
+    let status = []
+    let orderSearchTable = [];
     result.forEach(order => {
       let menus = [];
       let allPrice = 0;
       let allQuantity = 0;
-      index = status.indexOf(order.status)
-
-      if (!orderTable.value[index]) {
-        orderTable.value[index] = []
+      if (!status.includes(order.status)) {
+        status.push(order.status);
+        index++
+      }
+      if (!orderSearchTable[index]) {
+        orderSearchTable[index] = []
       }
 
       order.menus.forEach(menu => {
@@ -281,7 +295,7 @@ async function filterName() {
         sumPrice: allPrice
       })
       let date = new Date(order.order_date)
-      orderTable.value[index].push({
+      orderSearchTable[index].push({
         id : order.id,
         detail :order.detail,
         status : order.status,
@@ -290,6 +304,7 @@ async function filterName() {
         menus : menus
       });
     })
+    orderTable.value = orderSearchTable;
     console.log('after filter :', orderTable.value)
   }
 }

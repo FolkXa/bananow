@@ -88,15 +88,19 @@ import { Input } from 'postcss';
             }}</span>
           <div class="mx-auto my-8">
             <label
-              for="example1"
-              class="mt-4 mb-1 block text-lg font-medium text-gray-700"
-              >อัพโหลดรูปภาพ</label
+                class="mt-4 mb-1 block text-lg font-medium text-gray-700"
+            >อัพโหลดรูปภาพ</label
             >
             <input
-              id="example1"
-              type="file"
-              class="mt-2 block w-full text-sm file:mr-4 file:rounded-md file:border-0 file:bg-slate-700 file:py-2 file:px-4 file:text-sm file:font-semibold file:text-white hover:file:bg-slate-900 focus:outline-none disabled:pointer-events-none disabled:opacity-60"
+                id="example1"
+                accept="image/*"
+                type="file"
+                class="mt-2 block w-full text-sm file:mr-4 file:rounded-md file:border-0 file:bg-slate-700 file:py-2 file:px-4 file:text-sm file:font-semibold file:text-white hover:file:bg-slate-900 focus:outline-none disabled:pointer-events-none disabled:opacity-60"
+                @change="onChange"
             />
+            <div v-if="item.imageUrl" id="preview" class="flex h-[360px] w-[360px] rounded-full ring-2 ring-white m-2 overflow-hidden mt-2">
+              <img class="object-cover transition ease-in-out" v-if="item.imageUrl" :src="item.imageUrl" alt="" />
+            </div>
           </div>
           <!-- <button class="bg-red-500 text-white rounded-xl ">Log in</button> -->
           <hr class="mt-4">
@@ -110,29 +114,55 @@ import { Input } from 'postcss';
 </template>
 
 <script setup lang="js">
+import axios from "axios";
+
+const auth = useAuthStore();
+if (auth.getUser.role !== 'admin') {
+  navigateTo('/');
+}
 const form = reactive({
   username: "",
   firstname: "",
-  surname: "",
+  lastname: "",
   email: "",
   password: "",
   password_confirmation: "",
-  phone : "",
-  photos: "",
+  imgPath: "",
   role : "staff"
 });
+const item = reactive( {
+  imageUrl : null
+})
 
 const errors = ref([]);
 
+
+function onChange(e) {
+  const file = e.target.files[0]
+  form.imgPath = file;
+  item.imageUrl = URL.createObjectURL(file)
+}
+
 const handleSubmit = async () => {
   try {
-    const { data } = await $fetch("http://localhost/api/register ", {
-      method: "POST",
-      body: { ...form },
-    });
-
-    console.log(`auth_store_register`, data);
-    navigateTo('/admins')
+    // const { data } = await $fetch("http://localhost/api/register ", {
+    //   method: "POST",
+    //   body: { ...form },
+    // });
+    //
+    // console.log(`auth_store_register`, data);
+    // navigateTo('/admins')
+    await axios.post('http://localhost/api/staff/create', form, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    }).then(response => {
+      console.log(response)
+      // navigateTo('/admins')
+    }).catch(error => {
+      console.log(error.data.errors)
+      errors.value = error.data.errors;
+    })
   } catch (error) {
     console.log(error.data.errors)
     errors.value = error.data.errors;

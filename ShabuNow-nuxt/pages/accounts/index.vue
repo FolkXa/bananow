@@ -7,37 +7,51 @@
     <ContentContainer>
       <!-- ข้อมูลส่วนตัว -->
       <div
-        class="w-2/3 p-4 text-xl font-light border rounded-xl mt-8"
+        class="flex flex-row w-2/3 p-4 text-xl font-light border rounded-xl mt-8"
       >
-        <h1 class="text-2xl font-semibold text-red-600">ข้อมูลส่วนตัว</h1>
+        <div class="flex flex-col w-1/2">
 
-        <p class="mt-4">
-          <span class="font-medium"> Username : </span>
-          {{ auth.getUser.username }}
-        </p>
-        <p class="mt-4">
-          <span class="font-medium"> ชื่อลูกค้า : </span>
-          {{ auth.getUser.firstname }} {{ auth.getUser.lastname }}
-        </p>
-        <p class="mt-4">
-          <span class="font-medium"> เบอร์โทรศัพท์ : </span>
-          {{ auth.getUser.phone }}
-        </p>
-        <div v-if="auth.getUser.role === 'customer'">
-        <p class="mt-4">
-          <span class="font-medium"> ช่องทางติดต่อ อื่นๆ : </span>
-        </p>
-        <InputField v-model="formContacts" @input="checkContacts"
-                    class="mt-4" placeholder="ช่องทางการติดต่อ อื่นๆ" type="text" name="contacts"/>
-        <Button @click="updateContacts" class="mt-4 p-3 text-lg">ยืนยันการเปลี่ยนช่องทางการติดต่อ</Button>
-        <span v-if="message.contacts" class="text-red-500">{{
-            message.contacts
-          }}</span>
-        <div class="mt-2">
+          <h1 class="text-2xl font-semibold text-red-600">ข้อมูลส่วนตัว</h1>
+          <p class="mt-4">
+            <span class="font-medium"> Username : </span>
+            {{ auth.getUser.username }}
+          </p>
+          <p class="mt-4">
+            <span class="font-medium"> ชื่อ : </span>
+            {{ auth.getUser.firstname }} {{ auth.getUser.lastname }}
+          </p>
+          <div v-if="auth.getUser.role === 'customer'">
+            <p class="mt-4">
+              <span class="font-medium"> เบอร์โทรศัพท์ : </span>
+              {{ auth.getUser.phone }}
+            </p>
+            <p class="mt-4">
+              <span class="font-medium"> ช่องทางติดต่อ อื่นๆ : </span>
+            </p>
+            <InputField v-model="formContacts" @input="checkContacts"
+                        class="mt-4" placeholder="ช่องทางการติดต่อ อื่นๆ" type="text" name="contacts"/>
+            <Button @click="updateContacts" class="mt-4 p-3 text-lg">ยืนยันการเปลี่ยนช่องทางการติดต่อ</Button>
+            <span v-if="message.contacts" class="text-red-500">{{
+                message.contacts
+              }}</span>
+            <div class="mt-2">
                 <span v-if="message.contacts_success" class="text-green-500">{{
                     message.contacts_success
                   }}</span>
+            </div>
+          </div>
         </div>
+        <div class="w-1/2 px-12">
+
+          <div v-if="auth.getUser.imgPath"
+               class="flex h-[360px] w-[360px] rounded-full ring-2 ring-white m-2 overflow-hidden">
+            <img class="object-cover h-[360px] w-[360px] rounded-full ring-2 ring-white m-2 border border-black"
+                 :src="'http://localhost' + auth.getUser.imgPath" alt="">
+          </div>
+          <div v-else class="flex h-[360px] w-[360px] rounded-full ring-2 ring-white m-2 overflow-hidden">
+            <img class="object-none opacity-100 transition ease-in-out hover:opacity-80"
+                 src="~/assets/img/default_avatar.jpg" alt="">
+          </div>
         </div>
       </div>
 

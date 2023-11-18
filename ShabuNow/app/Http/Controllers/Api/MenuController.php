@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Menu;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class MenuController extends Controller
 {
@@ -41,7 +42,7 @@ class MenuController extends Controller
     {
         $request->validate([
             'name' => 'required|string|min:1|max:20',
-            'imgPath' => 'nullable|string',
+            'imgPath' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'description' => 'nullable|string|min:1|max:30',
             'status' => 'required|in:available,outofstock',
             'price' => 'required|integer|min:1|max:1000',
@@ -53,10 +54,32 @@ class MenuController extends Controller
         }
 
         $menu->name = $request->get('name');
-        $menu->imgPath = $request->get('imgPath');
         $menu->description = $request->get('description');
         $menu->status = $request->get('status');
         $menu->price = $request->get('price');
+
+        // Check if an image file is provided
+        if ($request->hasFile('imgPath')) {
+            // delete file
+            if ($menu->imgPath) {
+                $filePath = 'public' . $menu->imgPath;
+                if (Storage::exists($filePath)) {
+                    Storage::delete($filePath);
+                }
+            }
+
+            // Upload the image
+            $image = $request->file('imgPath');
+            $imageName = time().'.'.$image->extension();
+
+            // Store the image in the 'menu_images' directory in the public disk
+            $path = 'images/menus';
+            $fullPath = '/'.$path.'/'.$imageName;
+            $image->move(public_path($path), $imageName);
+
+            // Save the image path to the database
+            $menu->imgPath = $fullPath;
+        }
         $menu->save();
         $menu->refresh();
 
@@ -78,7 +101,7 @@ class MenuController extends Controller
     {
         $request->validate([
             'name' => 'required|string|min:1|max:20',
-            'imgPath' => 'nullable|string',
+            'imgPath' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'description' => 'required|string|min:1|max:30',
             'status' => 'required|in:available,outofstock',
             'price' => 'required|integer|min:1|max:1000',
@@ -88,7 +111,6 @@ class MenuController extends Controller
         $menu = new Menu();
 
         $menu->name = $name;
-        $menu->imgPath = $request->get('imgPath');
         $menu->description = $request->get('description');
         $menu->status = $request->get('status');
         $menu->price = $request->get('price');
@@ -97,13 +119,15 @@ class MenuController extends Controller
         if ($request->hasFile('imgPath')) {
             // Upload the image
             $image = $request->file('imgPath');
-            $imageName = time() . '.' . $image->getClientOriginalExtension();
+            $imageName = time().'.'.$image->extension();
 
             // Store the image in the 'menu_images' directory in the public disk
-            $image->storeAs('images/menus', $imageName, 'public');
+            $path = 'images/menus';
+            $fullPath = '/'.$path.'/'.$imageName;
+            $image->move(public_path($path), $imageName);
 
             // Save the image path to the database
-            $menu->imgPath = 'images/menus/' . $imageName;
+            $menu->imgPath = $fullPath;
         }
 
         $menu->save();

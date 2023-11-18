@@ -24,9 +24,22 @@ class AuthController extends Controller
         }
         return $this->makeToken($user);
     }
-    public function register(RegisterRequest $request){
-           $user = User::create($request->validated());
-           return $this->makeToken($user);
+    public function register(Request $request){
+        $request->validate([
+            'username' => 'required|string|unique:users|min:8|max:20',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|confirmed|min:8|max:20',
+            'phone' => 'unique:users|min:10|max:15',
+            'role' => 'nullable|in:admin,chef,staff,customer',
+            'firstname' => 'required|string|max:255',
+            'lastname' => 'required|string|max:255',
+        ]);
+        $user = User::create($request->all());
+        $user->lastname = $request->get('lastname');
+        $user->phone = $request->get('phone');
+        $user->save();
+        $user->refresh();
+        return $this->makeToken($user);
 
     }
     public function makeToken($user){

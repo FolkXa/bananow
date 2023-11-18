@@ -93,10 +93,11 @@
               id="example1"
               type="file"
               class="mt-2 block w-full text-sm file:mr-4 file:rounded-md file:border-0 file:bg-slate-700 file:py-2 file:px-4 file:text-sm file:font-semibold file:text-white hover:file:bg-slate-900 focus:outline-none disabled:pointer-events-none disabled:opacity-60"
-              name="photos"
+              name="image"
+              @change="onFileChange"
             />
-            <span v-if="errors.photos" class="text-red-500">{{
-              errors.photos[0]
+            <span v-if="errors.imgPath" class="text-red-500">{{
+              errors.imgPath[0]
             }}</span>
           </div>
           <!-- Register Button -->
@@ -118,24 +119,29 @@
           src="https://images.unsplash.com/photo-1549048085-bab2f1f49f65?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2487&q=80"
           alt=""
         />
+        <div v-if="urlSelectedFile" class="flex h-[360px] w-[360px] rounded-full ring-2 ring-white m-2 overflow-hidden">
+          <img class="object-cover opacity-100 transition ease-in-out hover:opacity-80"
+               :src="urlSelectedFile" alt="">
+        </div>
       </div>
     </div>
   </section>
 </template>
 
-<script setup>
+<script setup lang="js">
+import axios from "axios";
+
 const auth = useAuthStore();
 const token = useTokenStore();
 const form = reactive({
   username: "",
-  firstname: "",
-  lastname: "",
   email: "",
   password: "",
   password_confirmation: "",
   phone : "",
-  photos: "",
-  role : "customer"
+  role : "customer",
+  firstname: "",
+  lastname: ""
 });
 
 const errors = ref([]);
@@ -152,17 +158,58 @@ function formatPhoneNumber() {
 const handleSubmit = async () => {
   try {
     // const response = await auth.register(username, firstname, surname, email, password, password_confirmation, photos);
-    const response = await auth.register(form);
+    const response = await $fetch("http://localhost/api/register ", {
+
+      method: "POST",
+      body: { ...form },
+    });
+
+    console.log('res : ',response)
+    await uploadImage(response.data.user.id);
+    // const response = await auth.register(form);
     //   method: "POST",
     //   body: { ...form },
     // });
-    console.log('res : ',response)
-    await auth.login();
+
+    navigateTo('/login')
   } catch (error) {
-    // console.log(error.data.errors.email[0]);
+    console.log(error);
     errors.value = error.data.errors;
   }
 };
+
+function onFileChange(event) {
+  selectedFile.value = event.target.files[0];
+
+  if (selectedFile.value) {
+    const reader = new FileReader()
+
+    reader.onload = (e) => {
+      urlSelectedFile.value = e.target.result
+    }
+
+    reader.readAsDataURL(selectedFile.value);
+  }
+}
+const selectedFile = ref();
+const urlSelectedFile = ref();
+async function uploadImage(id) {
+  if (!selectedFile.value) {
+    return
+  }
+  const formData = new FormData();
+  formData.append("imgPath", selectedFile.value);
+
+  axios.post(`http://localhost/api/customer/${id}/uploadImage`, formData,             {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  }).then(response => {
+    console.log(response)
+  }).catch(error => {
+    throw error
+  });
+}
 definePageMeta({
   middleware: ["guest"],
   layout: "no-navbar",

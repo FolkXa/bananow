@@ -45,7 +45,7 @@
                     class="relative border border-red-600 rounded-xl shadow-lg w-72 h-auto mt-4 p-4 flex flex-col justify-center items-center">
                   <img
                       class="rounded-xl object-cover h-[256px] w-full"
-                      :src="menu.imgUrl || ''"
+                      :src="'http://localhost' + menu.imgPath || ''"
                       alt=""/>
 
                   <!-- edit menu button for admin -->
@@ -97,7 +97,7 @@ const counter = ref([]);
 const table_id = 3;
 const auth = useAuthStore();
 if (auth.getUser.role !== 'admin') {
-  navigateTo('/home')
+  navigateTo('/')
 }
 let data = null;
 console.log(auth.getUser.role)

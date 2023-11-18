@@ -9,9 +9,9 @@
       <a href="/" class="flex justify-center items-center">
         <div>
           <img
-            class="w-[64px] md:w-[64px] ease-out duration-300"
+            class="w-[96px] md:w-[96px] ease-out duration-300"
             src="~/assets/img/logo.png"
-            alt="EzyFry"
+            alt="EasyFry"
           />
         </div>
         <h1 class="text-2xl md:text-xl text-red-600 font-bold ease-out duration-300">
@@ -59,11 +59,14 @@
           </a>
 
           <!-- welcome user -->
-          <a
+          <a v-if="auth.getUser.id"
             href="/accounts"
             class="mx-4 flex items-center text-red-600 hover:text-red-500 ease-out duration-300"
           >
-            <i class="bi bi-person-fill md:text-xl text-2xl mr-2"></i>
+
+            <img v-if="auth.getUser.imgPath" class="inline-block h-12 w-12 rounded-full ring-2 ring-white m-2" :src="'http://localhost' + auth.getUser.imgPath" alt="">
+<!--            <i v-else class="bi bi-person-fill md:text-xl text-2xl mr-2"></i>-->
+            <img v-else class="inline-block object-cover h-12 w-12 rounded-full ring-2 ring-white m-2" src="~/assets/img/default_avatar.jpg" alt="">
             <div class="">
               <p>สวัสดีคุณ,</p>
               <p>{{ auth.getUser.username }}</p>
@@ -73,7 +76,7 @@
           <!-- end of welcome user-->
 
           <!-- login and register -->
-          <a v-if="!auth.getUser"
+          <a v-if="!auth.getUser.id"
           href="/login"
           class="bg-gray-100 p-2 mt-4 lg:mt-0 rounded flex items-center border-2 hover:border-red-600 cursor-pointer text-red-600 hover:text-red-500 ease-out duration-300"
           >
@@ -86,7 +89,7 @@
           <!-- end of login and register -->
 
           <!-- logout btn -->
-          <Button @click.prevent="auth.logout()" class="lg:mx-4 mt-4 lg:mt-0 flex items-center">
+          <Button v-if="auth.getUser.id" @click.prevent="auth.logout()" class="lg:mx-4 mt-4 lg:mt-0 flex items-center">
             <i class="bi bi-box-arrow-right md:text-xl text-2xl mr-2"></i>
             <p class="">ออกจากระบบ</p>
           </Button>
