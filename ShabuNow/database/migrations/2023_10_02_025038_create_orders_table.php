@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(\App\Models\User::class)->nullable();
+            $table->foreignIdFor(\App\Models\User::class);
             $table->string('detail')->nullable();
             $table->enum('status', ['ordering','pending','in_queue','ready','done','rejected'])->default('ordering');
             $table->timestamp('receiving_time')->nullable();

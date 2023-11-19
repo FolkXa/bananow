@@ -122,7 +122,7 @@ import {all} from "axios";
 // update schedule
 async function updateSchedule() {
   try {
-    let r = await $fetch('http://localhost/updateSchedule', {
+    let r = await $fetch('http://localhost/api/order/updateSchedule', {
       method : 'POST'
     })
     console.log(r)
@@ -174,13 +174,13 @@ if (auth.getUser.role !== 'staff') {
   navigateTo('/');
 }
 const orders = ref(await $fetch(`http://localhost/api/order/non_status/ordering`))
+orders.value.forEach((a, b) => {
+  return new Date(a.receiving_time) - new Date(b.receiving_time);
+})
 const rejectField = ref([]);
 const notes = ref([])
 const transactionOpen = ref([]);
 // orders = await $fetch(`http://localhost/api/order/18/non_status/ordering`);
-orders.value.sort((a, b) => {
-  return new Date(a.receiving_time) - new Date(b.receiving_time);
-});
 let allData = orders;
 
 const orderTable = ref([])
@@ -189,9 +189,9 @@ const intervalId = ref();
 async function categorizeStatus() {
   clearInterval(intervalId.value)
   orders.value = await $fetch(`http://localhost/api/order/non_status/ordering`);
-  orders.value.sort((a, b) => {
+  orders.value.forEach((a, b) => {
     return new Date(a.receiving_time) - new Date(b.receiving_time);
-  });
+  })
   allData = orders.value;
   if (orders.value.length === 0) {
     return
@@ -226,7 +226,7 @@ async function categorizeStatus() {
       quantity: allQuantity,
       sumPrice: allPrice
     })
-    let date = new Date(order.order_date)
+    let date = new Date(order.receiving_time)
     date.setHours(date.getHours() + 7)
     orderTable.value[index].push({
       id : order.id,
@@ -238,6 +238,16 @@ async function categorizeStatus() {
       transactions : order.transactions
     });
   })
+  let tmp = orderTable.value;
+  tmp.sort((a, b) => {
+    return status.indexOf(a) - status.indexOf(b);
+  })
+  tmp.forEach(item => {
+    item.sort((a, b) => {
+      return new Date(a.date_time) - new Date(b.date_time);
+    })
+  })
+  orderTable.value = tmp;
   intervalId.value = setInterval(() => categorizeStatus, 30000)
 }
 // .toUTCString().split('GMT').join('')
