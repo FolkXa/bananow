@@ -64,7 +64,7 @@
             class="mx-4 flex items-center text-red-600 hover:text-red-500 ease-out duration-300"
           >
 
-            <img v-if="auth.getUser.imgPath" class="inline-block h-12 w-12 rounded-full ring-2 ring-white m-2" :src="'http://localhost' + auth.getUser.imgPath" alt="">
+            <img v-if="auth.getUser.imgPath" loading="lazy" class="object-cover h-12 w-12 rounded-full ring-2 ring-white m-2" :src="'http://localhost' + auth.getUser.imgPath" alt="">
 <!--            <i v-else class="bi bi-person-fill md:text-xl text-2xl mr-2"></i>-->
             <img v-else class="inline-block object-cover h-12 w-12 rounded-full ring-2 ring-white m-2" src="~/assets/img/default_avatar.jpg" alt="">
             <div class="">

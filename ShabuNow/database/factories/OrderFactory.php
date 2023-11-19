@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Menu;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,12 +19,13 @@ class OrderFactory extends Factory
     public function definition(): array
     {
         $status = array('ordering','pending','in_queue','ready','done', 'rejected');
+        $users = User::all();
         return [
             'detail' => fake()->realTextBetween(5,30,2),
             'status' => $status[array_rand($status)],
-            'user_id' => fake()->numberBetween(1,20),
-            'receiving_time' => fake()->dateTime(),
-            'order_date' => fake()->dateTime()
+            'user_id' => $users->get(fake()->numberBetween(0,$users->count() -1))->id,
+            'receiving_time' => $this->faker->dateTimeBetween('-1 days', 'now'),
+            'order_date' => $this->faker->dateTimeBetween('-3 days', 'now')
         ];
     }
 }

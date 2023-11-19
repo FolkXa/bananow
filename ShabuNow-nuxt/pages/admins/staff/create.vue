@@ -145,24 +145,24 @@ function onChange(e) {
 
 const handleSubmit = async () => {
   try {
-    // const { data } = await $fetch("http://localhost/api/register ", {
-    //   method: "POST",
-    //   body: { ...form },
-    // });
-    //
-    // console.log(`auth_store_register`, data);
-    // navigateTo('/admins')
-    await axios.post('http://localhost/api/staff/create', form, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    }).then(response => {
-      console.log(response)
-      // navigateTo('/admins')
-    }).catch(error => {
-      console.log(error.data.errors)
-      errors.value = error.data.errors;
-    })
+    const { data } = await $fetch("http://localhost/api/staff/create ", {
+      method: "POST",
+      body: { ...form },
+    });
+
+    console.log(`auth_store_register`, data);
+    navigateTo('/admins')
+    // await axios.post('http://localhost/api/staff/create', form, {
+    //   headers: {
+    //     'Content-Type': 'multipart/form-data'
+    //   }
+    // }).then(response => {
+    //   console.log(response)
+    //   // navigateTo('/admins')
+    // }).catch(error => {
+    //   console.log(error.data.errors)
+    //   errors.value = error.data.errors;
+    // })
   } catch (error) {
     console.log(error.data.errors)
     errors.value = error.data.errors;

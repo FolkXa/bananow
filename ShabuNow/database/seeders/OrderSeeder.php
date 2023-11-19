@@ -20,8 +20,9 @@ class OrderSeeder extends Seeder
         $orders = Order::all();
         $menus = Menu::all();
         foreach ($orders as $order) {
-            for ($i = 0; $i < 5; $i++) {
-                $menu = $menus->find(fake()->numberBetween(1, 20));
+            $rand = fake()->numberBetween(1,5);
+            for ($i = 0; $i < $rand; $i++) {
+                $menu = $menus->find(fake()->numberBetween(1, $menus->count()));
                 if (!$order->menus()->find($menu->id)) {
                     $order->menus()->attach($menu->id);
                 }

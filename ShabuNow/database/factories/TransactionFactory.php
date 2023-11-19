@@ -25,7 +25,7 @@ class TransactionFactory extends Factory
             'user_id' => $this->faker->numberBetween(1, $user_range), // Replace with your actual logic
             'before_status' => $this->faker->randomElement(['pending', 'in_queue', 'ready']),
             'after_status' => $this->faker->randomElement(['in_queue', 'ready','done', 'rejected']),
-            'change_date' => $this->faker->dateTimeBetween('-30 days', 'now'),
+            'change_date' => $this->faker->dateTimeBetween('-3 days', 'now'),
         ];
     }
 }
