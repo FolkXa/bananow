@@ -88,10 +88,14 @@
           <ButtonBorder @click="accept(order.id)"> Accept </ButtonBorder>
           <ButtonBorder v-if="!rejectField[order.id]" @click="rejectField[order.id] = true" class="ml-4"> Reject </ButtonBorder>
           <ButtonBorder v-if="rejectField[order.id]" @click="reject(order.id)" class="ml-4"> Confirm Reject </ButtonBorder>
-
         </div>
-        <div v-if="order.status === 'in_queue'" class="flex flex-row md-4">
+        <div v-if="order.status === 'in_queue'" class="flex flex-row md-4 mt-3">
           <ButtonBorder @click="ready(order.id)"> Ready </ButtonBorder>
+          <ButtonBorder v-if="!rejectField[order.id]" @click="rejectField[order.id] = true" class="ml-4"> Reject </ButtonBorder>
+          <ButtonBorder v-if="rejectField[order.id]" @click="reject(order.id)" class="ml-4"> Confirm Reject </ButtonBorder>
+        </div>
+        <div v-if="order.status === 'ready'" class="flex flex-row md-4 mt-3">
+          <ButtonBorder @click="done(order.id)"> Done </ButtonBorder>
           <ButtonBorder v-if="!rejectField[order.id]" @click="rejectField[order.id] = true" class="ml-4"> Reject </ButtonBorder>
           <ButtonBorder v-if="rejectField[order.id]" @click="reject(order.id)" class="ml-4"> Confirm Reject </ButtonBorder>
         </div>
@@ -99,6 +103,12 @@
         <p class="text-xl p-2">หมายเหตุ :</p>
         <input-field class="ml-1" placeholder="หมายเหตุ" v-model="notes[order.id]" type="text"></input-field>
         </div>
+        <span v-if="successMessage[order.id]" class="text-green-400">
+          Update Successfully
+        </span>
+        <span v-if="errorMessage[order.id]" class="text-red-500">
+          Error : {{ errorMessage[order.id] }}
+        </span>
         <!-- end -->
       </ContentContainer>
       <!-- end menu container -->
@@ -131,7 +141,7 @@ async function updateSchedule() {
   }
 }
 
-setInterval(updateSchedule, 60000);
+setInterval(updateSchedule, 120000);
 
 const status = []
 status.push({
@@ -174,9 +184,6 @@ if (auth.getUser.role !== 'staff') {
   navigateTo('/');
 }
 const orders = ref(await $fetch(`http://localhost/api/order/non_status/ordering`))
-orders.value.forEach((a, b) => {
-  return new Date(a.receiving_time) - new Date(b.receiving_time);
-})
 const rejectField = ref([]);
 const notes = ref([])
 const transactionOpen = ref([]);
@@ -189,9 +196,6 @@ const intervalId = ref();
 async function categorizeStatus() {
   clearInterval(intervalId.value)
   orders.value = await $fetch(`http://localhost/api/order/non_status/ordering`);
-  orders.value.forEach((a, b) => {
-    return new Date(a.receiving_time) - new Date(b.receiving_time);
-  })
   allData = orders.value;
   if (orders.value.length === 0) {
     return
@@ -242,38 +246,68 @@ async function categorizeStatus() {
   tmp.sort((a, b) => {
     return status.indexOf(a) - status.indexOf(b);
   })
-  tmp.forEach(item => {
-    item.sort((a, b) => {
-      return new Date(a.date_time) - new Date(b.date_time);
-    })
-  })
   orderTable.value = tmp;
   intervalId.value = setInterval(() => categorizeStatus, 30000)
 }
 // .toUTCString().split('GMT').join('')
+
+const successMessage = ref([]);
+const errorMessage = ref([])
 async function accept(id) {
-  const response = await $fetch(`http://localhost/api/order/${id}/in_queue/${auth.getUser.id}`, {
-    method: 'POST'
-  });
-  location.reload()
+  try {
+    const response = await $fetch(`http://localhost/api/order/${id}/in_queue/${auth.getUser.id}`, {
+      method: 'POST'
+    });
+    successMessage.value[id] = true
+    setTimeout(() => {
+      location.reload();
+    }, 1000);
+  } catch (error) {
+    errorMessage.value[id] = error.data;
+  }
 }
 async function reject(id) {
-  let note = notes.value[id]
-  const response = await $fetch(`http://localhost/api/order/${id}/rejected/${auth.getUser.id}`, {
-    method: 'POST',
-    body: { note }
-  });
-  console.log(response)
-  rejectField.value[id] = false;
-  notes.value[id] = '';
-  location.reload()
+  try {
+    let note = notes.value[id]
+    const response = await $fetch(`http://localhost/api/order/${id}/rejected/${auth.getUser.id}`, {
+      method: 'POST',
+      body: { note }
+    });
+    successMessage.value[id] = true
+    setTimeout(() => {
+      location.reload();
+    }, 1000);
+  } catch (error) {
+    errorMessage.value[id] = error.data;
+  }
 }
 
 async function ready(id) {
-  const response = await $fetch(`http://localhost/api/order/${id}/ready/${auth.getUser.id}`, {
-    method: 'POST'
-  });
-  location.reload()
+  try {
+    const response = await $fetch(`http://localhost/api/order/${id}/ready/${auth.getUser.id}`, {
+      method: 'POST'
+    });
+    successMessage.value[id] = true
+    setTimeout(() => {
+      location.reload();
+    }, 1000);
+  } catch (error) {
+    errorMessage.value[id] = error.data;
+  }
+}
+
+async function done(id) {
+  try {
+    const response = await $fetch(`http://localhost/api/order/${id}/done/${auth.getUser.id}`, {
+      method: 'POST'
+    });
+    successMessage.value[id] = true
+    setTimeout(() => {
+      location.reload();
+    }, 1000);
+  } catch (error) {
+    errorMessage.value[id] = error.data;
+  }
 }
 
 function filter(status) {

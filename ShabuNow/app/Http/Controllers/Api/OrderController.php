@@ -133,15 +133,16 @@ class OrderController extends Controller
 
     public function updateSchedule() {
         $ordersToUpdate = Order::where('status', 'ready')
-            ->where('receiving_time', '<=', Carbon::now()->timezone('Asia/Bangkok')->format('Y-m-d H:i:s'))
+            ->where('receiving_time', '<=', Carbon::now()->timezone('Asia/Bangkok')->addMinutes(60))
             ->get();
 
 // Iterate through the orders and update the status
         foreach ($ordersToUpdate as $order) {
             // Create a new transaction record
-            TransactionContoller::add($order->id, '', 'ready', 'done');
+            TransactionContoller::add($order->id, '', 'ready', 'rejected');
             // Update the order status
-            $order->status = 'done';
+            $order->status = 'rejected';
+            $order->note = '1 hour late';
             $order->save();
         }
         return response()->json('update Schedule Successfully');

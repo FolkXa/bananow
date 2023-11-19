@@ -33,6 +33,15 @@
         <p class="text-xl">วันที่สั่ง : {{ order.order_date }}</p>
         <p v-if="order.detail" class="text-xl">รายละเอียดเพิ่มเติม : {{order.detail}}</p>
         <span v-if="order.note" class="text-xl text-red-500 font-red">หมายเหตุ : {{ order.note }}</span>
+        <div v-if="order.status === 'ready'" class="flex flex-row md-4 mt-3">
+          <ButtonBorder @click="done(order.order_id)"> Done </ButtonBorder>
+        </div>
+        <span v-if="successMessage" class="text-green-400">
+          Update Successfully
+        </span>
+        <span v-if="errorMessage" class="text-red-500">
+          Error : {{ errorMessage }}
+        </span>
         <hr/>
         <!-- end -->
       </ContentContainer>
@@ -116,6 +125,21 @@ async function categorizeStatus(s) {
     number++
   })
   intervalId.value = setInterval(() => categorizeStatus(s), 5000)
+}
+const successMessage = ref();
+const errorMessage = ref();
+async function done(id) {
+  try {
+    const response = await $fetch(`http://localhost/api/order/${id}/done/${auth.getUser.id}`, {
+      method: 'POST'
+    });
+    successMessage.value = true
+    setTimeout(() => {
+      location.reload();
+    }, 1000);
+  } catch (error) {
+    errorMessage.value = error.data;
+  }
 }
 console.log(orderTable)
 categorizeStatus('/non_status/ordering')

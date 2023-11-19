@@ -81,7 +81,7 @@ const handleSubmit = async () => {
     //   body: { ...form },
     // });
   } catch (error) {
-    console.log(error.data.errors.email[0]);
+    console.log(error.data);
     errors.value = error.data.errors;
     // throw error
   }
