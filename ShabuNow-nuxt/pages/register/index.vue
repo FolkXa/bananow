@@ -88,7 +88,7 @@
             <label
               for="example1"
               class="mb-1 block text-sm font-medium text-gray-700"
-              >อัพโหลดรูปภาพ</label>
+              >Upload image</label>
             <input
               id="example1"
               type="file"
@@ -102,13 +102,13 @@
           </div>
           <!-- Register Button -->
           <Button>
-            <slot name="button"> สมัครสมาชิก </slot>
+            <slot name="button"> Register </slot>
           </Button>
           <br />
           <!-- Login Here -->
           <p class="mb-8">
-            สมัครบัญชีไว้แล้ว?
-            <a href="/login" class="underline">เข้าสู่ระบบที่นี่</a>
+            have an account yet?
+            <a href="/login" class="underline">Login Here</a>
           </p>
         </form>
       </div>

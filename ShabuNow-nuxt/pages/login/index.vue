@@ -16,7 +16,7 @@
             id="email"
             type="email"
             name="email"
-            placeholder="อีเมล"
+            placeholder="Email"
             v-model.trim="form.email"
           />
           <span v-if="errors.email" class="text-red-500">{{
@@ -27,7 +27,7 @@
             id="email"
             type="password"
             name="password"
-            placeholder="รหัสผ่าน"
+            placeholder="Password"
             v-model.trim="form.password"
           />
           <span v-if="errors.password" class="text-red-500">{{
@@ -39,8 +39,8 @@
           </Button>
           <br />
           <p>
-            ยังไม่ได้สร้างบัญชี?
-            <a href="/register" class="underline">สมัครสมาชิก</a>
+            Don't have an account yet?
+            <a href="/register" class="underline">Register</a>
           </p>
         </form>
 <!--        <Button type="submit" @click.prevent="token.removeToken()">-->
