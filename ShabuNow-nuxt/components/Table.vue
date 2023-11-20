@@ -20,6 +20,8 @@
                         {{ data }}
                       </a>
                     </td>
+                    <template>
+                    </template>
                 </tr>
             </tbody>
         </table>

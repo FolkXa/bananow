@@ -25,11 +25,53 @@
 
       </HeaderContainer>
       <ContentContainer v-for="order in orders" class="w-full border border-gray-200 p-3 rounded">
-        <Table :datas="order.menus" :headers="tableHeaders" class="m-0 w-full">
-          <template v-slot:title>
-            Order ที่ {{ number - order.index }} , เวลารับของ : {{ order.date_time }}
-          </template>
-        </Table>
+<!--        <Table :datas="order.menus" :headers="tableHeaders" class="m-0 w-full">-->
+<!--          <template v-slot:title>-->
+<!--            Order ที่ {{ number - order.index }} , เวลารับของ : {{ order.date_time }}-->
+<!--          </template>-->
+<!--        </Table>-->
+        <div class="flex flex-col justify-center items-center w-full mb-10 p-4">
+          <h1 class="bg-black text-center text-white text-xl rounded-t-xl py-2 px-4">
+            {{ 'id : '+ order.id +  ' เวลามารับของ : ' + order.date_time }}
+          </h1>
+          <table class="text-center text-sm lg:text-lg rounded-xl table-auto w-full border-2 border-slate-400 border-separate border-spacing-3">
+            <thead>
+            <tr>
+              <th  class="border border-slate-300 rounded-xl p-2 bg-gray-100">
+                รายการ
+              </th>
+              <th  class="border border-slate-300 rounded-xl p-2 bg-gray-100">
+                จำนวน
+              </th>
+              <th  class="border border-slate-300 rounded-xl p-2 bg-gray-100">
+                ราคา
+              </th>
+              <th v-if="order.status === 'in_queue'"  class="border border-slate-300 rounded-xl p-2 bg-gray-100">
+                สถานะ
+              </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="(menu, index) in order.menus" :key="index">
+              <td class="border border-slate-300 rounded-xl p-4 text-2xl">
+                {{ menu.name }}
+              </td>
+              <td class="border border-slate-300 rounded-xl p-4 text-2xl">
+                {{ menu.quantity }}
+              </td>
+              <td class="border border-slate-300 rounded-xl p-4 text-2xl">
+                {{ menu.sumPrice }}
+              </td>
+              <td v-if="menu.status === 'making'" class="border border-slate-300 rounded-xl p-4 text-2xl">
+                making
+              </td>
+              <td v-if="menu.status === 'ready'" :class="['border border-slate-300 rounded-xl p-4 text-2xl text-green-400']">
+                Ready
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
         <p class="text-xl">วันที่สั่ง : {{ order.order_date }}</p>
         <p v-if="order.detail" class="text-xl">รายละเอียดเพิ่มเติม : {{order.detail}}</p>
         <span v-if="order.note" class="text-xl text-red-500 font-red">หมายเหตุ : {{ order.note }}</span>
@@ -79,6 +121,7 @@ const intervalId = ref();
 async function categorizeStatus(s) {
   clearInterval(intervalId.value)
   let orders = await $fetch(`http://localhost/api/order/${auth.getUser.id}${s}`);
+  let order_details = await $fetch('http://localhost/api/order/getOrderDetails')
   if (!orders) {
     return
   }
@@ -97,11 +140,20 @@ async function categorizeStatus(s) {
     order.menus.forEach(menu => {
       allPrice += menu.price * menu.pivot.quantity;
       allQuantity += menu.pivot.quantity
-      menus.push({
-        name: menu.name,
-        quantity: menu.pivot.quantity,
-        sumPrice: menu.price * menu.pivot.quantity
-      });
+      if (order.status === 'in_queue') {
+        menus.push({
+          name: menu.name,
+          quantity: menu.pivot.quantity,
+          sumPrice: menu.price * menu.pivot.quantity,
+          status : order_details.find(item => item.order_id === order.id && item.menu_id === menu.id).status
+        });
+      } else {
+        menus.push({
+          name: menu.name,
+          quantity: menu.pivot.quantity,
+          sumPrice: menu.price * menu.pivot.quantity
+        })
+      }
     });
     menus.push({
       name: "รวม",

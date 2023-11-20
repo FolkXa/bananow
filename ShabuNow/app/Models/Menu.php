@@ -13,7 +13,7 @@ class Menu extends Model
 
     public function orders() : BelongsToMany
     {
-        return $this->belongsToMany(Order::class, 'order_details', 'menu_id', 'order_id')->withPivot('quantity');
+        return $this->belongsToMany(Order::class, 'order_details', 'menu_id', 'order_id')->withPivot(['quantity', 'status']);
     }
 }
 

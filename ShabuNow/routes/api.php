@@ -58,11 +58,13 @@ Route::group([
     Route::get('/{user_id}/status/{status}', [\App\Http\Controllers\Api\OrderController::class, 'orderByStatus']);
     Route::get('/{user_id}/non_status/{status}', [\App\Http\Controllers\Api\OrderController::class, 'orderByNonStatus']);
     Route::get('/getQueue', [\App\Http\Controllers\Api\OrderController::class, 'getQueue']);
+    Route::get('/getOrderDetails', [\App\Http\Controllers\Api\OrderController::class, 'getOrderDetails']);
     Route::post('/{user_id}/addMenu', [\App\Http\Controllers\Api\OrderController::class, 'addMenu']);
     Route::post('/{user_id}/allStore', [\App\Http\Controllers\Api\OrderController::class, 'allStore']);
     Route::post('/{order_id}/updateOrderStatus', [\App\Http\Controllers\Api\OrderController::class, 'updateOrderStatus']);
     Route::post('/{order_id}/{status}/{user_id}', [\App\Http\Controllers\Api\OrderController::class, 'updateStatus']);
     Route::post('/updateSchedule', [\App\Http\Controllers\Api\OrderController::class, 'updateSchedule']);
+    Route::post('/{order_id}/{menu_index}/updateOrderDetailStatus/{status}', [\App\Http\Controllers\Api\OrderController::class, 'updateOrderDetailStatus']);
 });
 
 Route::group([ //customer section --------------------------------------------------------------------------------------------

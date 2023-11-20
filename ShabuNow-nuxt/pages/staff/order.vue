@@ -50,11 +50,64 @@
 
       </HeaderContainer>
       <ContentContainer v-for="order in orders" class="w-full border-2 border-black border-separate border-spacing-3 rounded-xl p-4">
-        <Table :datas="order.menus" :headers="tableHeaders" class="m-0 w-full">
+        <Table v-if="order.status !== 'in_queue'" :datas="order.menus" :headers="tableHeaders" class="m-0 w-full">
           <template v-slot:title>
             {{ 'id : '+ order.id +  ' เวลามารับของ : ' + order.date_time }}
           </template>
         </Table>
+        <div v-else class="flex flex-col justify-center items-center w-full mb-10 p-4">
+          <h1 class="bg-black text-center text-white text-xl rounded-t-xl py-2 px-4">
+            {{ 'id : '+ order.id +  ' เวลามารับของ : ' + order.date_time }}
+          </h1>
+          <table class="text-center text-sm lg:text-lg rounded-xl table-auto w-full border-2 border-slate-400 border-separate border-spacing-3">
+            <thead>
+            <tr>
+              <th  class="border border-slate-300 rounded-xl p-2 bg-gray-100">
+                รายการ
+              </th>
+              <th  class="border border-slate-300 rounded-xl p-2 bg-gray-100">
+                จำนวน
+              </th>
+              <th  class="border border-slate-300 rounded-xl p-2 bg-gray-100">
+                ราคา
+              </th>
+              <th  class="border border-slate-300 rounded-xl p-2 bg-gray-100">
+                สถานะ
+              </th>
+              <th  class="border border-slate-300 rounded-xl p-2 bg-gray-100">
+                Action
+              </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="(menu, index) in order.menus" :key="index">
+              <td class="border border-slate-300 rounded-xl p-4 text-2xl">
+                {{ menu.name }}
+              </td>
+              <td class="border border-slate-300 rounded-xl p-4 text-2xl">
+                {{ menu.quantity }}
+              </td>
+              <td class="border border-slate-300 rounded-xl p-4 text-2xl">
+                {{ menu.sumPrice }}
+              </td>
+              <td v-if="menu.status === 'making'" class="border border-slate-300 rounded-xl p-4 text-2xl">
+                making
+              </td>
+              <td v-if="menu.status === 'ready'" :class="['border border-slate-300 rounded-xl p-4 text-2xl text-green-400']">
+                Ready
+              </td>
+              <td v-if="menu.status" class="border border-slate-300 rounded-xl p-2">
+                <Button @click="menuReady(order, index, menu)" class=" py-2 px-2 bg-white hover:bg-green-500">
+                  <p class="text-green-500 hover:text-white">
+                    <i class="bi bi-pencil-square mr-2"></i>
+                    Ready
+                  </p>
+                </Button>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
         <Nav>
           <NavItem :isActive="!select[order.id]" @click="selectOrderDetail(order.id)">Order Detail</NavItem>
           <NavItem :isActive="select[order.id]" @click="selectTransaction(order.id)">Transactions</NavItem>
@@ -90,7 +143,6 @@
           <ButtonBorder v-if="rejectField[order.id]" @click="reject(order.id)" class="ml-4"> Confirm Reject </ButtonBorder>
         </div>
         <div v-if="order.status === 'in_queue'" class="flex flex-row md-4 mt-3">
-          <ButtonBorder @click="ready(order.id)"> Ready </ButtonBorder>
           <ButtonBorder v-if="!rejectField[order.id]" @click="rejectField[order.id] = true" class="ml-4"> Reject </ButtonBorder>
           <ButtonBorder v-if="rejectField[order.id]" @click="reject(order.id)" class="ml-4"> Confirm Reject </ButtonBorder>
         </div>
@@ -190,18 +242,22 @@ const transactionOpen = ref([]);
 // orders = await $fetch(`http://localhost/api/order/18/non_status/ordering`);
 let allData = orders;
 
-const orderTable = ref([])
+const orderTable = ref([]);
 const intervalId = ref();
 
 async function categorizeStatus() {
   clearInterval(intervalId.value)
   orders.value = await $fetch(`http://localhost/api/order/non_status/ordering`);
+  let order_details = await $fetch('http://localhost/api/order/getOrderDetails')
+  // console.log('order details : ', order_details)
   allData = orders.value;
   if (orders.value.length === 0) {
     return
   }
   let index = -1;
   let status = []
+  let tmpTable = []
+  orderTable.value = [];
   orders.value.forEach(order => {
     let menus = [];
     let allPrice = 0;
@@ -212,18 +268,27 @@ async function categorizeStatus() {
     } else {
       index = status.indexOf(order.status)
     }
-    if (!orderTable.value[index]) {
-      orderTable.value[index] = []
+    if (!tmpTable[index]) {
+      tmpTable[index] = []
     }
 
     order.menus.forEach(menu => {
       allPrice += menu.price * menu.pivot.quantity;
       allQuantity += menu.pivot.quantity
-      menus.push({
-        name: menu.name,
-        quantity: menu.pivot.quantity,
-        sumPrice: menu.price * menu.pivot.quantity
-      });
+      if (order.status === 'in_queue') {
+        menus.push({
+          name: menu.name,
+          quantity: menu.pivot.quantity,
+          sumPrice: menu.price * menu.pivot.quantity,
+          status : order_details.find(item => item.order_id === order.id && item.menu_id === menu.id).status
+        });
+      } else {
+        menus.push({
+          name: menu.name,
+          quantity: menu.pivot.quantity,
+          sumPrice: menu.price * menu.pivot.quantity
+        })
+      }
     });
     menus.push({
       name: "รวม",
@@ -232,7 +297,7 @@ async function categorizeStatus() {
     })
     let date = new Date(order.receiving_time)
     date.setHours(date.getHours() + 7)
-    orderTable.value[index].push({
+    tmpTable[index].push({
       id : order.id,
       detail :order.detail,
       status : order.status,
@@ -242,17 +307,28 @@ async function categorizeStatus() {
       transactions : order.transactions
     });
   })
-  let tmp = orderTable.value;
-  tmp.sort((a, b) => {
-    return status.indexOf(a) - status.indexOf(b);
-  })
-  orderTable.value = tmp;
+  orderTable.value = tmpTable;
+  console.log('ordertable : ', orderTable.value)
   intervalId.value = setInterval(() => categorizeStatus, 30000)
 }
 // .toUTCString().split('GMT').join('')
 
 const successMessage = ref([]);
 const errorMessage = ref([])
+
+async function menuReady(order, menu_index, menu) {
+  try {
+    const response = $fetch(`http://localhost/api/order/${order.id}/${menu_index}/updateOrderDetailStatus/ready`, {
+      method : 'POST'
+    })
+    menu.status = 'ready';
+    if (!order.menus.find(item => item.status === 'making')) {
+      await ready(order.id)
+    }
+  } catch (error) {
+    console.log(error.data)
+  }
+}
 async function accept(id) {
   try {
     const response = await $fetch(`http://localhost/api/order/${id}/in_queue/${auth.getUser.id}`, {
@@ -349,6 +425,7 @@ async function filterName() {
     let index = -1;
     let status = []
     let orderSearchTable = [];
+    let order_details = await $fetch('http://localhost/api/order/getOrderDetails')
     result.forEach(order => {
       let menus = [];
       let allPrice = 0;
@@ -369,7 +446,8 @@ async function filterName() {
         menus.push({
           name: menu.name,
           quantity: menu.pivot.quantity,
-          sumPrice: menu.price * menu.pivot.quantity
+          sumPrice: menu.price * menu.pivot.quantity,
+          status : order_details.find(item => item.order_id === order.id && item.menu_id === menu.id).status
         });
       });
       menus.push({

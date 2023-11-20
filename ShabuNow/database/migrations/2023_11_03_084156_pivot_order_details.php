@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignIdFor(\App\Models\Order::class);
             $table->foreignIdFor(\App\Models\Menu::class);
             $table->integer('quantity')->default(0);
+            $table->enum('status', ['making', 'ready'])->default('making');
         });
     }
 

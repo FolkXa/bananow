@@ -15,7 +15,7 @@ class Order extends Model
 
     public function menus() : BelongsToMany
     {
-        return $this->belongsToMany(Menu::class, 'order_details', 'order_id', 'menu_id')->withPivot('quantity');
+        return $this->belongsToMany(Menu::class, 'order_details', 'order_id', 'menu_id')->withPivot(['quantity', 'status']);
     }
     public function user() : BelongsTo
     {

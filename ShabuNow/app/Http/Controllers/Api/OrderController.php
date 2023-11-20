@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Menu;
 use App\Models\Order;
-use App\Models\Table;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -132,10 +131,11 @@ class OrderController extends Controller
     }
 
     public function updateSchedule() {
+        $timeLate = Carbon::now()->timezone('Asia/Bangkok')->addMinutes(60);
         $ordersToUpdate = Order::where('status', 'ready')
-            ->where('receiving_time', '<=', Carbon::now()->timezone('Asia/Bangkok')->addMinutes(60))
+            ->where('receiving_time', '>', $timeLate)
             ->get();
-
+        $count = $ordersToUpdate->count();
 // Iterate through the orders and update the status
         foreach ($ordersToUpdate as $order) {
             // Create a new transaction record
@@ -145,7 +145,7 @@ class OrderController extends Controller
             $order->note = '1 hour late';
             $order->save();
         }
-        return response()->json('update Schedule Successfully');
+        return response()->json('update '. $count .' Schedule Successfully');
     }
 
     public function updateStatus(Request $request,string $order_id ,string $status, string $user_id) { // non ordering to anything
@@ -166,6 +166,17 @@ class OrderController extends Controller
 
     public function getQueue() {
         return Order::where('status', 'in Queue')->get();
+    }
+
+    public function getOrderDetails() {
+        return DB::table('order_details')->get();
+    }
+
+    public function updateOrderDetailStatus(string $order_id, string $menu_index, string $status) {
+        $order = Order::find($order_id);
+        $menu = $order->menus()->get()->get($menu_index);
+        $order->menus()->updateExistingPivot($menu->id, ['status' => $status]);
+        return response()->json('Update Successfully');
     }
 
 }
