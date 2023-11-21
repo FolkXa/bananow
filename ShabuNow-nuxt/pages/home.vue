@@ -61,12 +61,12 @@
                     </p>
                     <p class="mt-2 text-xl font-light">
                       ฿
-                      {{ menu.price }}
+                      {{ menu.price }} ({{ menu.description }})
                     </p>
-                    <p class="mt-2 text-xl font-light">
+<!--                    <p class="mt-2 text-xl font-light">-->
 
-                      {{ menu.description }}
-                    </p>
+<!--                      {{ menu.description }}-->
+<!--                    </p>-->
                     <div class="w-full">
                       <div class="custom-number-input h-10 w-full flex flex-col items-center justify-center ">
                         <label for="custom-input-number" class="w-full text-gray-700 text-base text-center font-semibold">

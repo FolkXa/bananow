@@ -131,9 +131,9 @@ class OrderController extends Controller
     }
 
     public function updateSchedule() {
-        $timeLate = Carbon::now()->timezone('Asia/Bangkok')->addMinutes(60);
+        $timeLate = Carbon::now()->timezone('Asia/Bangkok')->addMinutes(-60);
         $ordersToUpdate = Order::where('status', 'ready')
-            ->where('receiving_time', '>', $timeLate)
+            ->where('receiving_time', '<', $timeLate)
             ->get();
         $count = $ordersToUpdate->count();
 // Iterate through the orders and update the status

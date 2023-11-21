@@ -109,7 +109,7 @@ export default {
         const links = [
             {name : "เลือกเมนู" , link : "/home", role: 'customer'},
             {name : "ตะกร้าสินค้า" , link : "/carts", role: ''},
-            {name : "รายการที่สั่ง" , link : "/history", role: 'customer'},
+            {name : "ประวัติการทำรายการ" , link : "/history", role: 'customer'},
         ];
 
     function menuOpen() {

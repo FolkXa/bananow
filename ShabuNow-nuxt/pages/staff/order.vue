@@ -91,7 +91,7 @@
                 {{ menu.sumPrice }}
               </td>
               <td v-if="menu.status === 'making'" class="border border-slate-300 rounded-xl p-4 text-2xl">
-                making
+                Making
               </td>
               <td v-if="menu.status === 'ready'" :class="['border border-slate-300 rounded-xl p-4 text-2xl text-green-400']">
                 Ready
@@ -182,18 +182,18 @@ export default {
 
 import {all} from "axios";
 // update schedule
-async function updateSchedule() {
-  try {
-    let r = await $fetch('http://localhost/api/order/updateSchedule', {
-      method : 'POST'
-    })
-    console.log(r)
-  } catch (error) {
-    console.log(error)
-  }
-}
-
-setInterval(updateSchedule, 120000);
+// async function updateSchedule() {
+//   try {
+//     let r = await $fetch('http://localhost/api/order/updateSchedule', {
+//       method : 'POST'
+//     })
+//     console.log(r)
+//   } catch (error) {
+//     console.log(error)
+//   }
+// }
+//
+// setInterval(updateSchedule, 120000);
 
 const status = []
 status.push({
@@ -246,7 +246,9 @@ const orderTable = ref([]);
 const intervalId = ref();
 
 async function categorizeStatus() {
-  clearInterval(intervalId.value)
+  if (intervalId.value) {
+    clearInterval(intervalId.value)
+  }
   orders.value = await $fetch(`http://localhost/api/order/non_status/ordering`);
   let order_details = await $fetch('http://localhost/api/order/getOrderDetails')
   // console.log('order details : ', order_details)
@@ -307,9 +309,9 @@ async function categorizeStatus() {
       transactions : order.transactions
     });
   })
+  orderTable.value = [];
   orderTable.value = tmpTable;
   console.log('ordertable : ', orderTable.value)
-  intervalId.value = setInterval(() => categorizeStatus, 30000)
 }
 // .toUTCString().split('GMT').join('')
 
@@ -409,6 +411,9 @@ async function filterName() {
   if (!search.value) {
     await categorizeStatus()
   } else {
+    if (intervalId.value) {
+      clearInterval(intervalId.value)
+    }
     filter('all');
     let result = [];
     allData.forEach(order => {
@@ -418,7 +423,6 @@ async function filterName() {
       }
     })
 
-    clearInterval(intervalId.value)
     if (!result) {
       return
     }
@@ -469,7 +473,7 @@ async function filterName() {
     })
     orderTable.value = orderSearchTable;
     console.log('after filter :', orderTable.value)
-    intervalId.value = setInterval(() => filterName(), 30000)
+    intervalId.value = setInterval(filterName(), 10000)
   }
 }
 
@@ -482,5 +486,6 @@ function selectTransaction(id) {
 }
 
 await categorizeStatus()
-console.log(orderTable.value)
+intervalId.value = setInterval(categorizeStatus, 10000);
+console.log(intervalId.value);
 </script>

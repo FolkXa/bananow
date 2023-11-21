@@ -32,7 +32,7 @@
 <!--        </Table>-->
         <div class="flex flex-col justify-center items-center w-full mb-10 p-4">
           <h1 class="bg-black text-center text-white text-xl rounded-t-xl py-2 px-4">
-            {{ 'id : '+ order.id +  ' เวลามารับของ : ' + order.date_time }}
+            {{ 'เวลามารับของ : ' + order.date_time }}
           </h1>
           <table class="text-center text-sm lg:text-lg rounded-xl table-auto w-full border-2 border-slate-400 border-separate border-spacing-3">
             <thead>
@@ -63,7 +63,7 @@
                 {{ menu.sumPrice }}
               </td>
               <td v-if="menu.status === 'making'" class="border border-slate-300 rounded-xl p-4 text-2xl">
-                making
+                Making
               </td>
               <td v-if="menu.status === 'ready'" :class="['border border-slate-300 rounded-xl p-4 text-2xl text-green-400']">
                 Ready
